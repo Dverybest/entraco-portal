@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 declare global {
   // TypeScript doesn't allow attaching properties to global directly, so we declare it explicitly.
+  /* eslint-disable-next-line no-var */
   var mongoose: {
     conn: mongoose.Connection | null;
     promise: Promise<mongoose.Connection> | null;

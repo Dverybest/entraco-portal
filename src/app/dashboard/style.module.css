@@ -1,0 +1,12 @@
+.decCard {
+  border-radius: 15px;
+  background-image: url("/market.png");
+  flex: 1;
+  height: 120px;
+  padding: 24px;
+}
+.decCard p {
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
+}

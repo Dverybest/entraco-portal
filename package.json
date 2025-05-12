@@ -10,15 +10,19 @@
   },
   "dependencies": {
     "@ant-design/nextjs-registry": "^1.0.2",
+    "@ant-design/plots": "^2.3.3",
     "@tanstack/react-query": "^5.75.7",
     "antd": "^5.25.1",
     "bcryptjs": "^3.0.2",
+    "dayjs": "^1.11.13",
     "mongoose": "^8.14.2",
     "next": "15.3.2",
     "next-auth": "^4.24.11",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-to-print": "^3.1.0",
     "react-toastify": "^11.0.5",
+    "universal-cookie": "^8.0.1",
     "zod": "^3.24.4"
   },
   "devDependencies": {
