@@ -23,7 +23,7 @@ export default function LoginPage() {
     });
     if (res?.ok) {
       toast.success("Login successful");
-      router.push("/dashboard");
+      router.replace("/");
     } else {
       toast.error("Invalid email or password");
     }

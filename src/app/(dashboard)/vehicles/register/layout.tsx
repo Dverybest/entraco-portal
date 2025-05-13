@@ -13,21 +13,17 @@ export default function CreateAllocation({
   } = theme.useToken();
   const pathname = usePathname();
   const mapActive = {
-    "/dashboard/shop-allocations/create": {
+    "/vehicles/register": {
       step: 0,
-      crumb: "Applicant Information",
+      crumb: "Vehicle Information",
     },
-    "/dashboard/vehicles/register/owner-information": {
+    "/vehicles/register/owner-information": {
       step: 1,
-      crumb: "Business Information",
+      crumb: "Owner Information",
     },
-    "/dashboard/shop-allocations/create/emergency-information": {
+    "/vehicles/register/route-assignment": {
       step: 2,
-      crumb: "Emergency Information",
-    },
-    "/dashboard/shop-allocations/create/shop-information": {
-      step: 3,
-      crumb: "Shop Information",
+      crumb: "Route Assignment",
     },
   };
   return (
@@ -47,14 +43,18 @@ export default function CreateAllocation({
       <Content
         style={{
           display: "flex",
-          // overflow: "hidden",
-          // flexDirection: "column",
+          overflow: "hidden",
+          flexDirection: "column",
         }}
       >
         <Steps
-          style={{ flex: 0.3, alignSelf: "flex-start", marginTop: "38px" }}
+          style={{
+            alignSelf: "flex-start",
+            marginTop: "16px",
+            marginBottom: "16px",
+          }}
           size={"small"}
-          direction="vertical"
+          direction={"horizontal"}
           current={mapActive[pathname as keyof typeof mapActive]?.step ?? 0}
           items={[
             {
@@ -64,10 +64,7 @@ export default function CreateAllocation({
               title: "Owner Information",
             },
             {
-              title: "Emergency Information",
-            },
-            {
-              title: "Shop  Information",
+              title: "Route Assignment",
             },
           ]}
         />

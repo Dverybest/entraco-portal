@@ -21,34 +21,36 @@ export default function Page() {
       >
         <PageHeader
           title="Dashboard"
-          subTitle="Welcome to Enugu North Local Government Shop Allocation Portal "
+          subTitle="Welcome to Enugu State Transport Company (ENTRACO) Registration Portal "
           cta={
             <Button
               type={"primary"}
               variant={"solid"}
-              href="/dashboard/shop-allocations/create"
+              href="/vehicles/register"
               icon={<PlusOutlined />}
             >
-              New Allocation
+              Register New Vehicle
             </Button>
           }
         />
         <Flex vertical gap={8} style={{ marginBottom: 28 }}>
           <Flex gap={8}>
             <InfoCard
-              title="Total Shops"
+              title="Total Registered Vehicle"
               color="#121C2D"
               textColor="white"
               value={0}
             />
-            <InfoCard title="Number of Markets" color="#FFFFD1" value={0} />
+            {/* <InfoCard title="Number of Markets" color="#FFFFD1" value={0} /> */}
             <InfoCard
-              title="Number of  Shop Owners"
+              title="Number of  Vehicle Owners"
               color="#E7F6EC"
               value={0}
             />
             <div className={classes.decCard}>
-              <p>Enugu North Local Government Shop Allocation Made Easy</p>
+              <p>
+                Enugu State Transport Company (ENTRACO) Registration Made Easy
+              </p>
             </div>
           </Flex>
         </Flex>

@@ -1,4 +1,5 @@
 "use client";
+import { states } from "@/app/(dashboard)/vehicles/register/data";
 import { CookieType } from "@/cookieType";
 import { cloudinaryUpload, getCookieValue, setCookieValue } from "@/utils";
 import { UploadOutlined } from "@ant-design/icons";
@@ -13,18 +14,22 @@ import {
   Select,
   Space,
   Upload,
+  UploadFile,
 } from "antd";
-import { RcFile, UploadFile } from "antd/es/upload";
+import TextArea from "antd/es/input/TextArea";
+import { RcFile } from "antd/es/upload";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
 import { UploadRequestOption } from "rc-upload/lib/interface";
 import { useEffect, useState } from "react";
-import { states } from "./data";
 
-export default function CreateAllocation() {
-  const router = useRouter();
+export default function OwnerInformation() {
   const [fileList, setFileList] = useState<UploadFile[]>();
   const [form] = Form.useForm();
+  const router = useRouter();
+  const [selectedState, setSelectedState] =
+    useState<keyof typeof states>("Abia");
+
   const setPreviewImage = (imageUrl: string) => {
     const nameSplit = imageUrl.split("/");
     setFileList([
@@ -36,25 +41,6 @@ export default function CreateAllocation() {
       },
     ]);
   };
-  const onFinish = (values: IVehicleInfo) => {
-    setCookieValue(CookieType.VehicleInformation, values);
-    router.push("/dashboard/vehicles/register/owner-information");
-  };
-
-  useEffect(() => {
-    const initialValue = getCookieValue<IVehicleInfo>(
-      CookieType.VehicleInformation
-    );
-
-    if (initialValue?.pictureUrl) {
-      setPreviewImage(initialValue.pictureUrl);
-      form.setFieldsValue({
-        ...initialValue,
-        yearOfManufacture: dayjs(`${initialValue.yearOfManufacture}`, "YYYY"),
-      });
-    }
-  }, [form]);
-
   const customRequest = ({ onSuccess, onError, file }: UploadRequestOption) => {
     cloudinaryUpload(file as RcFile)
       .then((res) => {
@@ -70,124 +56,117 @@ export default function CreateAllocation() {
     setFileList([]);
   };
 
+  const onFinish = (values: IOwnerInfo) => {
+    setCookieValue(CookieType.EmergencyInformation, values);
+    router.push("/vehicles/register/route-assignment");
+  };
+  useEffect(() => {
+    const initialValue = getCookieValue<IOwnerInfo>(
+      CookieType.EmergencyInformation
+    );
+    if (initialValue) {
+      form.setFieldsValue({
+        ...initialValue,
+        dateOfBirth: dayjs(initialValue.dateOfBirth),
+      });
+    }
+  }, [form]);
   return (
-    <Flex style={{ padding: 24 }}>
+    <Flex style={{ padding: 24, flex: 1 }}>
       <Form
         layout="vertical"
         form={form}
         name="control-hooks"
         onFinish={onFinish}
-        style={{ width: "100%", maxWidth: 600 }}
+        style={{ width: 600 }}
       >
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              name="registrationNumber"
-              label="Vehicle Registration Number"
+              name="name"
+              label="Full Name"
               rules={[{ required: true }]}
             >
-              <Input placeholder="(e.g., ENU123AB)" />
+              <Input placeholder="Enter Name of Next of Kin" />
             </Form.Item>
           </Col>
           <Col span={12}>
             <Form.Item
-              name="type"
-              label="Vehicle Type"
+              name="gender"
+              label="Gender"
               rules={[{ required: true }]}
             >
               <Select
-                placeholder="Vehicle Type"
+                placeholder="Gender"
                 allowClear
                 options={[
-                  { label: "Bus", value: "Bus" },
-                  { label: "Mini Bus", value: "Mini Bus" },
-                  { label: "Taxi", value: "BTaxius" },
-                  { label: "Other", value: "Other" },
+                  { label: "Male", value: "Male" },
+                  { label: "Female", value: "Female" },
                 ]}
               />
             </Form.Item>
           </Col>
         </Row>
+
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              name="chassisNumber"
-              label="Chassis Number (VIN)"
+              name="email"
+              label="Email Address"
               rules={[{ required: true }]}
             >
-              <Input />
+              <Input type={"email"} />
             </Form.Item>
           </Col>
           <Col span={12}>
             <Form.Item
-              name="engineNumber"
-              label="Engine Number"
+              name="dateOfBirth"
+              label="Date of birth"
               rules={[{ required: true }]}
             >
-              <Input />
+              <DatePicker style={{ width: "100%" }} picker={"date"} />
             </Form.Item>
           </Col>
         </Row>
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              name="make"
-              label="Vehicle Make"
+              name="phoneNumber"
+              label="Phone Number"
               rules={[{ required: true }]}
             >
-              <Select
-                placeholder="Select Vehicle Make"
-                showSearch
-                filterOption={(input, option) =>
-                  (option?.label ?? "")
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                options={["Toyota", "Mercedes"].map((state) => ({
-                  label: state,
-                  value: state,
-                }))}
-              />
+              <Input type={"phone"} />
             </Form.Item>
           </Col>
           <Col span={12}>
             <Form.Item
-              name="fuelType"
-              label="Fuel Type"
-              rules={[{ required: true }]}
+              name="phoneNumber"
+              label="Alternative Phone Number"
+              rules={[{ required: false }]}
             >
-              <Select
-                placeholder="Select Fuel Type"
-                showSearch
-                filterOption={(input, option) =>
-                  (option?.label ?? "")
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-                options={["Petrol", "Diesel", "CNG", "Electric"].map(
-                  (type) => ({
-                    label: type,
-                    value: type,
-                  })
-                )}
-              />
+              <Input type={"phone"} />
             </Form.Item>
           </Col>
         </Row>
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              name="issuingState"
-              label="Plate Number Issuing State"
+              name="state"
+              label="State of Origin"
               rules={[{ required: true }]}
             >
               <Select
+                placeholder="Select state"
                 showSearch
                 filterOption={(input, option) =>
                   (option?.label ?? "")
                     .toLowerCase()
                     .includes(input.toLowerCase())
                 }
+                onChange={(value) => {
+                  setSelectedState(value);
+                  form.setFieldsValue({ lga: "" });
+                }}
                 options={Object.keys(states).map((state) => ({
                   label: state,
                   value: state,
@@ -197,46 +176,75 @@ export default function CreateAllocation() {
           </Col>
           <Col span={12}>
             <Form.Item
-              name="capacity"
-              label="Capacity (Number of Passengers) "
+              name="lga"
+              label="Local Government Area"
               rules={[{ required: true }]}
             >
-              <Input type={"number"} />
+              <Select
+                placeholder="Select LGA"
+                showSearch
+                filterOption={(input, option) =>
+                  (option?.label ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                options={states[selectedState]?.map((lga) => ({
+                  label: lga,
+                  value: lga,
+                }))}
+              />
             </Form.Item>
           </Col>
         </Row>
-
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              name="model"
-              label="Vehicle Model"
+              name="address"
+              label="Identification Type "
+              rules={[{ required: true }]}
+            >
+              <Select
+                allowClear
+                options={[
+                  { label: "National ID", value: "National ID" },
+                  { label: "Driver’s License", value: "Driver’s License" },
+                  { label: "Voter’s Card", value: "Voter’s Card" },
+                  {
+                    label: "International Passport",
+                    value: "International Passport",
+                  },
+                ]}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              name="idNumber"
+              label="ID Number"
               rules={[{ required: true }]}
             >
               <Input />
             </Form.Item>
           </Col>
-          <Col span={12}>
+        </Row>
+        <Row gutter={16}>
+          <Col span={24}>
             <Form.Item
-              name="yearOfManufacture"
-              label="Year of Manufacture"
+              name="city"
+              label="Residential Address "
               rules={[{ required: true }]}
             >
-              <DatePicker
-                format={"YYYY"}
-                style={{ width: "100%" }}
-                picker="year"
-              />
+              <TextArea />
             </Form.Item>
           </Col>
         </Row>
         <Form.Item
           name="pictureUrl"
-          label="Recent Vehicle Photo"
+          label="Valid ID Document"
           rules={[
             {
               required: true,
-              message: "Please upload an image!",
+              message: "Please upload a file!",
             },
           ]}
         >
@@ -255,18 +263,26 @@ export default function CreateAllocation() {
               }
               setFileList(fileList);
             }}
-            accept={".jpg, .jpeg, .png"}
+            accept={".jpg, .jpeg, .png, .pdf"}
             onRemove={onRemove}
             customRequest={customRequest}
           >
-            <Button icon={<UploadOutlined />}>
-              Upload Recent Vehicle Photo
-            </Button>
+            <Button icon={<UploadOutlined />}>Upload Valid ID Document</Button>
           </Upload>
         </Form.Item>
         <Flex justify={"flex-end"} align={"flex-end"}>
           <Form.Item>
             <Space>
+              <Button
+                onClick={() => {
+                  router.back();
+                }}
+                type={"default"}
+                variant={"outlined"}
+                htmlType={"button"}
+              >
+                Previous
+              </Button>
               <Button type="primary" htmlType="submit">
                 Next
               </Button>

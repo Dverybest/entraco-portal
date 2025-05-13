@@ -4,6 +4,7 @@ import { DM_Sans } from "next/font/google";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";
+import { Provider } from "./provider";
 import { siteMetadata } from "./siteMetadata";
 
 const dmSans = DM_Sans({
@@ -41,7 +42,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={dmSans.variable}>
         <ToastContainer position="top-right" theme="light" />
-        <AntdRegistry>{children}</AntdRegistry>
+        <AntdRegistry>
+          <Provider>{children}</Provider>
+        </AntdRegistry>
       </body>
     </html>
   );

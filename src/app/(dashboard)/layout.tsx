@@ -14,12 +14,13 @@ import {
   Layout,
   Menu,
   Modal,
+  Spin,
   theme,
 } from "antd";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
+import { redirect, usePathname, useRouter } from "next/navigation";
 import React, { useMemo, useState } from "react";
-
 const { Header, Sider, Content } = Layout;
 
 const App: React.FC<
@@ -29,6 +30,7 @@ const App: React.FC<
 > = ({ children }) => {
   const router = useRouter();
   const pathName = usePathname();
+  const { status } = useSession();
 
   const { firstName, lastName } = { firstName: "John", lastName: "Doe" }; // Replace with actual user data
   const [collapsed, setCollapsed] = useState(false);
@@ -45,7 +47,16 @@ const App: React.FC<
   const {
     token: { colorBgContainer },
   } = theme.useToken();
-
+  if (status === "unauthenticated") {
+    redirect("/login");
+  }
+  if (status === "loading") {
+    return (
+      <center>
+        <Spin spinning />
+      </center>
+    );
+  }
   return (
     <Layout style={{ height: "100vh", overflowY: "hidden" }}>
       <Sider
@@ -55,7 +66,11 @@ const App: React.FC<
         collapsed={collapsed}
         style={{ background: colorBgContainer }}
       >
-        <Flex justify={"center"} align={"center"} style={{ marginBottom: 24 }}>
+        <Flex
+          justify={"center"}
+          align={"center"}
+          style={{ marginBottom: 24, marginTop: 24 }}
+        >
           <Image src={"/entraco-logo.jpeg"} alt="" width={70} height={70} />
         </Flex>
         <Menu
@@ -66,12 +81,12 @@ const App: React.FC<
           activeKey={activeKey}
           items={[
             {
-              key: "/dashboard",
+              key: "/",
               icon: <HomeOutlined />,
               label: "Home",
             },
             {
-              key: "/dashboard/vehicles",
+              key: "/vehicles",
               icon: <ShopOutlined />,
               label: "Vehicles",
             },

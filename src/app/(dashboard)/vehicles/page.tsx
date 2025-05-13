@@ -34,32 +34,32 @@ export default function Page() {
       key: "key",
     },
     {
-      title: "NAME OF MARKET",
-      dataIndex: "market",
-      key: "market",
+      title: "Route number",
+      dataIndex: "routeNumber",
+      key: "routeNumber",
     },
     {
-      title: "OWNER’S NAME",
+      title: "Vehicle Type",
+      dataIndex: "type",
+      key: "type",
+    },
+    {
+      title: "Owner Name",
       dataIndex: "ownerName",
       key: "ownerName",
     },
     {
-      title: "SHOP NUMBER",
+      title: "Route Assignment ",
       dataIndex: "shopNumber",
       key: "shopNumber",
     },
     {
-      title: "SHOP LINE",
-      dataIndex: "shopLine",
-      key: "shopLine",
-    },
-    {
-      title: "PHONE NUMBER",
+      title: "Phone Number",
       dataIndex: "phoneNumber",
       key: "phoneNumber",
     },
     {
-      title: "DATE",
+      title: "Date",
       dataIndex: "date",
       key: "date",
     },
@@ -69,7 +69,7 @@ export default function Page() {
       render: ({ id }: { id: string }) => {
         return (
           <Space size="middle">
-            <Link href={`/dashboard/shop-allocations/${id}`}>View</Link>
+            <Link href={`/vehicles/${id}`}>View</Link>
           </Space>
         );
       },
@@ -99,7 +99,7 @@ export default function Page() {
           <Button
             type={"primary"}
             variant={"solid"}
-            href="/dashboard/vehicles/register"
+            href="/vehicles/register"
             icon={<PlusOutlined />}
           >
             Register New Vehicles
@@ -112,7 +112,16 @@ export default function Page() {
         gap={10}
         style={{ paddingBottom: 16 }}
       >
-        <Select placeholder={"Filter by market"} allowClear options={[]} />
+        <Select
+          placeholder="Filter byVehicle Type"
+          allowClear
+          options={[
+            { label: "Bus", value: "Bus" },
+            { label: "Mini Bus", value: "Mini Bus" },
+            { label: "Taxi", value: "BTaxius" },
+            { label: "Other", value: "Other" },
+          ]}
+        />
         <RangePicker
           format="YYYY-MM-DD"
           onChange={(value, dateString) => {

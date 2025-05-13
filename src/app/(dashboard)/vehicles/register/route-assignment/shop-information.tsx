@@ -1,7 +1,7 @@
 "use client";
 import { CookieType } from "@/cookieType";
 import { getCookieValue, setCookieValue, useDebounceInput } from "@/utils";
-import { Button, Col, Flex, Form, Input, Row, Select, Space } from "antd";
+import { Button, Flex, Form, Select, Space } from "antd";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { AllocationSuccessModal } from "./allocation-success-modal";
@@ -47,9 +47,13 @@ export const ShopInformation = () => {
         onFinish={onFinish}
         style={{ maxWidth: 600, width: "100%" }}
       >
-        <Form.Item name="marketId" label="Market" rules={[{ required: true }]}>
+        <Form.Item
+          name="route"
+          label="Assign Route"
+          rules={[{ required: true }]}
+        >
           <Select
-            placeholder={"Select market"}
+            placeholder={"Select route"}
             allowClear
             showSearch
             filterOption={false}
@@ -57,26 +61,7 @@ export const ShopInformation = () => {
             options={[]}
           />
         </Form.Item>
-        <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item
-              name={"number"}
-              label="Shop Number"
-              rules={[{ required: true }]}
-            >
-              <Input placeholder="Enter Number" />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              name="line"
-              label="Shop Line"
-              rules={[{ required: true }]}
-            >
-              <Input placeholder="Enter Shop Line" />
-            </Form.Item>
-          </Col>
-        </Row>
+
         <Flex justify={"flex-end"} align={"flex-end"}>
           <Form.Item>
             <Space>
@@ -90,7 +75,7 @@ export const ShopInformation = () => {
               >
                 Previous
               </Button>
-              <Button loading={true} type="primary" htmlType="submit">
+              <Button loading={false} type="primary" htmlType="submit">
                 Next
               </Button>
             </Space>
