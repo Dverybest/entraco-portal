@@ -5,11 +5,13 @@ import { Button, Flex, Form, Select, Space } from "antd";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { AllocationSuccessModal } from "./allocation-success-modal";
+import { states } from "../data";
 
 export const ShopInformation = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
   const router = useRouter();
+
   const [searchMarket, setSearchMarket] = useState("");
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _search = useDebounceInput(searchMarket);
@@ -58,9 +60,34 @@ export const ShopInformation = () => {
             showSearch
             filterOption={false}
             onSearch={onSearch}
-            options={[]}
+            options={[
+              { label: "Interstate", value: "is" },
+              { label: "TownState", value: "ts" },
+              { label: "Internal Local Government", value: "il" },
+            ]}
           />
         </Form.Item>
+        <Form.Item
+          name="routeState"
+          label="Assign Route State"
+          rules={[{ required: true }]}
+        >
+              <Select
+                placeholder="Select state"
+                showSearch
+                filterOption={(input, option) =>
+                  (option?.label ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+       
+                options={Object.keys(states).map((state) => ({
+                  label: state,
+                  value: state,
+                }))}
+              />
+        </Form.Item>
+
 
         <Flex justify={"flex-end"} align={"flex-end"}>
           <Form.Item>

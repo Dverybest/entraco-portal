@@ -26,3 +26,30 @@ interface IOwnerInfo {
   pictureUrl: string;
   state: string;
 }
+
+
+interface IDriverInformation {
+  // Personal Information
+  fullName: string;
+  dateOfBirth: string; // ISO string format when saved to cookie
+  gender: "Male" | "Female" | "Other";
+  nationality: string;
+  state: string;
+  lga: string;
+  residentialAddress: string;
+  phoneNumber: string;
+  email: string;
+  
+  // Identification and Verification
+  nin: string;
+  validIdUrl: string;
+  passportUrl: string;
+  
+  // Driver's License Information
+  licenseNumber: string;
+  licenseClass: "A" | "B" | "C" | "D" | "E" | "F";
+  issuingAuthority: "FRSC" | "State VIO";
+  issueDate: string; // ISO string format when saved to cookie
+  expiryDate: string; // ISO string format when saved to cookie
+  licenseUrl: string;
+}
