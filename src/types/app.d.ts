@@ -32,7 +32,7 @@ interface IDriverInformation {
   // Personal Information
   fullName: string;
   dateOfBirth: string; // ISO string format when saved to cookie
-  gender: "Male" | "Female" | "Other";
+  gender: "Male" | "Female" ;
   nationality: string;
   state: string;
   lga: string;
