@@ -30,6 +30,8 @@ export default function OwnerInformation() {
   const [selectedState, setSelectedState] =
     useState<keyof typeof states>("Abia");
 
+
+
   const setPreviewImage = (imageUrl: string) => {
     const nameSplit = imageUrl.split("/");
     setFileList([
@@ -58,7 +60,7 @@ export default function OwnerInformation() {
 
   const onFinish = (values: IOwnerInfo) => {
     setCookieValue(CookieType.EmergencyInformation, values);
-    router.push("/vehicles/register/route-assignment");
+    router.push("/vehicles/register/driver-information");
   };
   useEffect(() => {
     const initialValue = getCookieValue<IOwnerInfo>(
@@ -78,15 +80,13 @@ export default function OwnerInformation() {
         form={form}
         name="control-hooks"
         onFinish={onFinish}
-        style={{ width: 600 }}
-      >
+        style={{ width: 600 }}>
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
               name="name"
               label="Full Name"
-              rules={[{ required: true }]}
-            >
+              rules={[{ required: true }]}>
               <Input placeholder="Enter Name of Next of Kin" />
             </Form.Item>
           </Col>
@@ -94,8 +94,7 @@ export default function OwnerInformation() {
             <Form.Item
               name="gender"
               label="Gender"
-              rules={[{ required: true }]}
-            >
+              rules={[{ required: true }]}>
               <Select
                 placeholder="Gender"
                 allowClear
@@ -113,8 +112,7 @@ export default function OwnerInformation() {
             <Form.Item
               name="email"
               label="Email Address"
-              rules={[{ required: true }]}
-            >
+              rules={[{ required: true }]}>
               <Input type={"email"} />
             </Form.Item>
           </Col>
@@ -122,8 +120,7 @@ export default function OwnerInformation() {
             <Form.Item
               name="dateOfBirth"
               label="Date of birth"
-              rules={[{ required: true }]}
-            >
+              rules={[{ required: true }]}>
               <DatePicker style={{ width: "100%" }} picker={"date"} />
             </Form.Item>
           </Col>
@@ -133,8 +130,7 @@ export default function OwnerInformation() {
             <Form.Item
               name="phoneNumber"
               label="Phone Number"
-              rules={[{ required: true }]}
-            >
+              rules={[{ required: true }]}>
               <Input type={"phone"} />
             </Form.Item>
           </Col>
@@ -142,8 +138,7 @@ export default function OwnerInformation() {
             <Form.Item
               name="phoneNumber"
               label="Alternative Phone Number"
-              rules={[{ required: false }]}
-            >
+              rules={[{ required: false }]}>
               <Input type={"phone"} />
             </Form.Item>
           </Col>
@@ -153,8 +148,7 @@ export default function OwnerInformation() {
             <Form.Item
               name="state"
               label="State of Origin"
-              rules={[{ required: true }]}
-            >
+              rules={[{ required: true }]}>
               <Select
                 placeholder="Select state"
                 showSearch
@@ -178,8 +172,7 @@ export default function OwnerInformation() {
             <Form.Item
               name="lga"
               label="Local Government Area"
-              rules={[{ required: true }]}
-            >
+              rules={[{ required: true }]}>
               <Select
                 placeholder="Select LGA"
                 showSearch
@@ -201,8 +194,7 @@ export default function OwnerInformation() {
             <Form.Item
               name="address"
               label="Identification Type "
-              rules={[{ required: true }]}
-            >
+              rules={[{ required: true }]}>
               <Select
                 allowClear
                 options={[
@@ -221,8 +213,7 @@ export default function OwnerInformation() {
             <Form.Item
               name="idNumber"
               label="ID Number"
-              rules={[{ required: true }]}
-            >
+              rules={[{ required: true }]}>
               <Input />
             </Form.Item>
           </Col>
@@ -232,8 +223,7 @@ export default function OwnerInformation() {
             <Form.Item
               name="city"
               label="Residential Address "
-              rules={[{ required: true }]}
-            >
+              rules={[{ required: true }]}>
               <TextArea />
             </Form.Item>
           </Col>
@@ -246,8 +236,7 @@ export default function OwnerInformation() {
               required: true,
               message: "Please upload a file!",
             },
-          ]}
-        >
+          ]}>
           <Upload
             listType="picture"
             multiple={false}
@@ -265,8 +254,7 @@ export default function OwnerInformation() {
             }}
             accept={".jpg, .jpeg, .png, .pdf"}
             onRemove={onRemove}
-            customRequest={customRequest}
-          >
+            customRequest={customRequest}>
             <Button icon={<UploadOutlined />}>Upload Valid ID Document</Button>
           </Upload>
         </Form.Item>
@@ -279,8 +267,7 @@ export default function OwnerInformation() {
                 }}
                 type={"default"}
                 variant={"outlined"}
-                htmlType={"button"}
-              >
+                htmlType={"button"}>
                 Previous
               </Button>
               <Button type="primary" htmlType="submit">

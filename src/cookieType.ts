@@ -4,4 +4,5 @@ export enum CookieType {
   BusinessInformation = "BusinessInformation",
   EmergencyInformation = "EmergencyInformation",
   ShopInformation = "ShopInformation",
+  DriverInformation = "DriverInformation",
 }
