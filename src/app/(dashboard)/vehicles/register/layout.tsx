@@ -28,7 +28,7 @@ export default function CreateAllocation({
     "/vehicles/register/driver-information": {
       step: 2,
       crumb: "Driver Information",
-      cookieDependency: CookieType.BusinessInformation,
+      cookieDependency: CookieType.EmergencyInformation,
     },
     "/vehicles/register/route-assignment": {
       step: 3,
@@ -36,7 +36,7 @@ export default function CreateAllocation({
       cookieDependency: CookieType.DriverInformation,
     },
   };
-  
+
   useFormSequenceGuard(
     mapActive[pathname as keyof typeof mapActive]?.cookieDependency
   );
