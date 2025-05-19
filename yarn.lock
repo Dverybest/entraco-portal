@@ -4639,6 +4639,11 @@ tr46@^5.1.0:
   dependencies:
     punycode "^2.3.1"
 
+tranzakt-node-sdk@^0.0.32:
+  version "0.0.32"
+  resolved "https://registry.npmjs.org/tranzakt-node-sdk/-/tranzakt-node-sdk-0.0.32.tgz#85d31575b5d1b2f5cad49d311eed71527a9c56ec"
+  integrity sha512-xikVoRGgJFSViA4f1SGh2Y4PJ1k/XtwE+KIvTaeHfb1QUWX7Dj8cjzQo2XBDrQ97m0sCxHuAn7l4nF1S7j5WsQ==
+
 ts-api-utils@^2.1.0:
   version "2.1.0"
   resolved "https://registry.npmjs.org/ts-api-utils/-/ts-api-utils-2.1.0.tgz#595f7094e46eed364c13fd23e75f9513d29baf91"

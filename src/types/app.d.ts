@@ -13,7 +13,7 @@ interface IVehicleInfo {
 }
 
 interface IOwnerInfo {
-  dateOfBirth: string;
+  dateOfBirth: Date;
   address: string;
   city: string;
   dateOfBirth: string;
@@ -27,24 +27,23 @@ interface IOwnerInfo {
   state: string;
 }
 
-
 interface IDriverInformation {
   // Personal Information
   fullName: string;
   dateOfBirth: string; // ISO string format when saved to cookie
-  gender: "Male" | "Female" ;
+  gender: "Male" | "Female";
   nationality: string;
   state: string;
   lga: string;
   residentialAddress: string;
   phoneNumber: string;
   email: string;
-  
+
   // Identification and Verification
   nin: string;
   validIdUrl: string;
   passportUrl: string;
-  
+
   // Driver's License Information
   licenseNumber: string;
   licenseClass: "A" | "B" | "C" | "D" | "E" | "F";
