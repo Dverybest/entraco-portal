@@ -7,7 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AllocationSuccessModal } from "./allocation-success-modal";
 import { states } from "../data";
 
-export const ShopInformation = () => {
+export const RouteInformation = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
   const router = useRouter();
@@ -72,22 +72,18 @@ export const ShopInformation = () => {
           label="Assign Route State"
           rules={[{ required: true }]}
         >
-              <Select
-                placeholder="Select state"
-                showSearch
-                filterOption={(input, option) =>
-                  (option?.label ?? "")
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
-       
-                options={Object.keys(states).map((state) => ({
-                  label: state,
-                  value: state,
-                }))}
-              />
+          <Select
+            placeholder="Select state"
+            showSearch
+            filterOption={(input, option) =>
+              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
+            options={Object.keys(states).map((state) => ({
+              label: state,
+              value: state,
+            }))}
+          />
         </Form.Item>
-
 
         <Flex justify={"flex-end"} align={"flex-end"}>
           <Form.Item>

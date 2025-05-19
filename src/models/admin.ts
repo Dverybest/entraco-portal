@@ -1,7 +1,7 @@
-import mongoose, { Schema, models } from "mongoose";
+import mongoose, { Document, Schema, models } from "mongoose";
 
-export interface IAdmin {
-  _id?: string;
+export interface IAdmin extends Document {
+  _id: string;
   email: string;
   password: string;
   lastName: string;
