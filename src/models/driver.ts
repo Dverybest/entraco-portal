@@ -14,10 +14,10 @@ const driverInformationSchema: Schema = new Schema(
     residentialAddress: { type: String, required: true },
     phoneNumber: { type: String, required: true },
     email: { type: String, required: true },
-    nin: { type: String, required: true, unique: true },
+    nin: { type: String, required: true },
     validIdUrl: { type: String, required: true },
     passportUrl: { type: String, required: true },
-    licenseNumber: { type: String, required: true, unique: true },
+    licenseNumber: { type: String, required: true },
     licenseClass: {
       type: String,
       enum: LicenseClass,

@@ -23,7 +23,7 @@ interface IOwnerInfo {
   lga: string;
   name: string;
   phoneNumber: string;
-  pictureUrl: string;
+  idDocumentUrl: string;
   state: string;
 }
 
