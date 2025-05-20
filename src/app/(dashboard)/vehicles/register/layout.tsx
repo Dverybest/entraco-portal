@@ -2,7 +2,7 @@
 import { PageHeader } from "@/components";
 import { CookieType } from "@/cookieType";
 import { useFormSequenceGuard } from "@/hooks/useFormSequenceGuard";
-import { Layout,  Steps, theme } from "antd";
+import { Layout, Steps, theme } from "antd";
 import { usePathname } from "next/navigation";
 import { ReactNode } from "react";
 const { Content } = Layout;
@@ -36,7 +36,7 @@ export default function CreateAllocation({
       cookieDependency: CookieType.DriverInformation,
     },
   };
-  
+
   useFormSequenceGuard(
     mapActive[pathname as keyof typeof mapActive]?.cookieDependency
   );
@@ -48,7 +48,8 @@ export default function CreateAllocation({
         padding: "24px",
         background: colorBgContainer,
         height: "100%",
-      }}>
+      }}
+    >
       <PageHeader
         title="Vehicle Registration Form"
         subTitle="Enter the details below to register a new vehicle"
@@ -59,7 +60,8 @@ export default function CreateAllocation({
           display: "flex",
           overflow: "hidden",
           flexDirection: "column",
-        }}>
+        }}
+      >
         <Steps
           style={{
             alignSelf: "flex-start",
@@ -91,7 +93,8 @@ export default function CreateAllocation({
             flexDirection: "column",
             height: "99%",
             overflowY: "auto",
-          }}>
+          }}
+        >
           {children}
         </div>
       </Content>

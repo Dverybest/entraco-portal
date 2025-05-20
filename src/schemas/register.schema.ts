@@ -10,7 +10,7 @@ export const vehicleInfoSchema = z.object({
   issuingState: z.string().min(1, "Issuing state is required"),
   make: z.string().min(1, "Make is required"),
   model: z.string().min(1, "Model is required"),
-  pictureUrl: z.string().url("Invalid picture URL"),
+  vehiclePhotoUrl: z.string().url("Invalid photo URL"),
   registrationNumber: z.string().min(1, "Registration number is required"),
   type: z.string().min(1, "Vehicle type is required"),
   yearOfManufacture: z.string().regex(/^\d{4}$/, "Enter a valid year"),
@@ -29,7 +29,7 @@ export const ownerInfoSchema = z.object({
   lga: z.string().min(1, "LGA is required"),
   name: z.string().min(1, "Name is required"),
   phoneNumber: z.string().min(7, "Phone number is required"),
-  pictureUrl: z.string().url("Invalid picture URL"),
+  idDocumentUrl: z.string().url("Invalid ID Document URL"),
   state: z.string().min(1, "State is required"),
 });
 
@@ -46,11 +46,9 @@ export const driverInfoSchema = z.object({
   residentialAddress: z.string().min(1, "Residential address is required"),
   phoneNumber: z.string().min(7, "Phone number is required"),
   email: z.string().email("Invalid email"),
-
   nin: z.string().min(1, "NIN is required"),
   validIdUrl: z.string().url("Invalid ID URL"),
   passportUrl: z.string().url("Invalid passport URL"),
-
   licenseNumber: z.string().min(1, "License number is required"),
   licenseClass: z.enum(["A", "B", "C", "D", "E", "F"]),
   issuingAuthority: z.enum(["FRSC", "State VIO"]),
@@ -64,9 +62,10 @@ export const driverInfoSchema = z.object({
 });
 
 export const routeInfoSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  shortCode: z.string().length(2, "Short code is required"),
+  routeCode: z.string().length(2, "Route code is required"),
+  state: z.string().min(3, "State is required"),
 });
+
 // Full Form Schema (optional, if you want to validate all at once)
 export const fullFormSchema = z.object({
   vehicleInfo: vehicleInfoSchema,

@@ -1,10 +1,18 @@
-import mongoose, { Schema, models } from "mongoose";
+import mongoose, { Schema, models, Document } from "mongoose";
 
-const RouteAssignmentSchema = new Schema(
+interface IRouteAssignment extends Document {
+  stateCode: string;
+  route: string;
+  routeCode: string;
+  registrationNo?: string;
+  state: string;
+}
+const routeAssignmentSchema = new Schema<IRouteAssignment>(
   {
-    vehicle: { type: Schema.Types.ObjectId, ref: "Vehicle" },
-    routeName: { type: String, required: true },
-    shortCode: { type: String, required: true },
+    state: { type: String, required: true },
+    stateCode: { type: String, required: true },
+    route: { type: String, required: true },
+    routeCode: { type: String, required: true },
     registrationNo: { type: String, required: false },
   },
   { timestamps: true }
@@ -12,4 +20,4 @@ const RouteAssignmentSchema = new Schema(
 
 export const RouteAssignment =
   models.RouteAssignment ||
-  mongoose.model("RouteAssignment", RouteAssignmentSchema);
+  mongoose.model<IRouteAssignment>("RouteAssignment", routeAssignmentSchema);
