@@ -59,12 +59,12 @@ export default function OwnerInformation() {
   };
 
   const onFinish = (values: IOwnerInfo) => {
-    setCookieValue(CookieType.EmergencyInformation, values);
+    setCookieValue(CookieType.OwnerInformation, values);
     router.push("/vehicles/register/driver-information");
   };
   useEffect(() => {
     const initialValue = getCookieValue<IOwnerInfo>(
-      CookieType.EmergencyInformation
+      CookieType.OwnerInformation
     );
     if (initialValue) {
       form.setFieldsValue({

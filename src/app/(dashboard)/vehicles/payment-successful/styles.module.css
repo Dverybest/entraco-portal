@@ -1,0 +1,32 @@
+.qr-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.qr-code {
+  display: block;
+  margin-bottom: 16px;
+}
+
+.logo-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 8px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.logo {
+  display: block;
+  border-radius: 4px;
+}
+
+.qr-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 16px;
+}

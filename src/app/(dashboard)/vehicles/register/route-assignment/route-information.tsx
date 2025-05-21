@@ -1,45 +1,128 @@
 "use client";
 import { CookieType } from "@/cookieType";
-import { getCookieValue, setCookieValue, useDebounceInput } from "@/utils";
-import { Button, Flex, Form, Select, Space } from "antd";
+import { getCookieValue, setCookieValue } from "@/utils";
+import { fetcher } from "@/utils/fetcher";
+import { Button, Flex, Form, Select, Space, message } from "antd";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { AllocationSuccessModal } from "./allocation-success-modal";
 import { states } from "../data";
+import { useMutation } from "@tanstack/react-query";
+import dayjs from "dayjs";
+
+type ApiError = {
+  statusCode: number;
+  message: string;
+};
+
+type RegisterResponse = {
+  success: boolean;
+  data: {
+    paymentUrl: string;
+  };
+};
+
+const cleanVehicleInfo = (vehicleInfo: IVehicleInfo) => {
+  return {
+    ...vehicleInfo,
+    yearOfManufacture: dayjs(vehicleInfo.yearOfManufacture).format('YYYY'),
+    vehiclePhotoUrl: vehicleInfo.pictureUrl,
+  };
+};
+
+const cleanOwnerInfo = (ownerInfo: IOwnerInfo) => {
+  const { pictureUrl, ...rest } = ownerInfo;
+  return {
+    ...rest,
+    idDocumentUrl: pictureUrl || ownerInfo.idDocumentUrl,
+  };
+};
+
+const cleanDriverInfo = (driverInfo: IDriverInformation) => {
+  return {
+    ...driverInfo,
+    gender: driverInfo.gender as "Male" | "Female",
+    licenseClass: driverInfo.licenseClass as "A" | "B" | "C" | "D" | "E" | "F",
+    issuingAuthority: driverInfo.issuingAuthority as "FRSC" | "State VIO",
+  };
+};
 
 export const RouteInformation = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [paymentUrl, setPaymentUrl] = useState<string>("");
   const [form] = Form.useForm();
   const router = useRouter();
 
-  const [searchMarket, setSearchMarket] = useState("");
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const _search = useDebounceInput(searchMarket);
-
-  const {} = useMemo(() => {
-    const applicationInformation = getCookieValue<IVehicleInfo>(
-      CookieType.VehicleInformation
-    );
+  const { vehicleInfo, ownerInfo, driverInfo } = useMemo(() => {
+    const vehicleInfo = getCookieValue<IVehicleInfo>(CookieType.VehicleInformation);
+    const ownerInfo = getCookieValue<IOwnerInfo>(CookieType.OwnerInformation);
+    const driverInfo = getCookieValue<IDriverInformation>(CookieType.DriverInformation);
     return {
-      applicationInformation,
+      vehicleInfo,
+      ownerInfo,
+      driverInfo,
     };
   }, []);
 
-  const onFinish = (values: IVehicleInfo) => {
-    setCookieValue(CookieType.ShopInformation, values);
-  };
-  const onSearch = (value: string) => {
-    setSearchMarket(value);
+  const registerVehicle = useMutation({
+    mutationFn: (values: { route: string; routeState: string }) => {
+      if (!vehicleInfo || !ownerInfo || !driverInfo) {
+        throw new Error('Missing required information');
+      }
+
+      const payload = {
+        vehicleInfo: cleanVehicleInfo(vehicleInfo),
+        ownerInfo: cleanOwnerInfo(ownerInfo),
+        driverInfo: cleanDriverInfo(driverInfo),
+        routeInfo: {
+          routeCode: values.route.toUpperCase(),
+          state: values.routeState,
+        },
+      };
+
+      return fetcher<RegisterResponse>({
+        url: '/api/vehicles/register',
+        method: 'POST',
+        data: payload,
+      });
+    },
+    onSuccess: (response) => {
+      if (response.success && response.data.paymentUrl) {
+        // Clear all cookies after successful registration
+        Object.values(CookieType).forEach((cookieType) => {
+          setCookieValue(cookieType, '');
+        });
+        setPaymentUrl(response.data.paymentUrl);
+        setIsModalOpen(true);
+      } else {
+        message.error('Registration successful but payment URL not received');
+      }
+    },
+    onError: (error: ApiError) => {
+      message.error(error.message || 'Failed to register vehicle. Please try again.');
+      console.error('Registration error:', error);
+    },
+  });
+
+  const onFinish = (values: { route: string; routeState: string }) => {
+    registerVehicle.mutate(values);
   };
 
   useEffect(() => {
-    const initialValue = getCookieValue<IVehicleInfo>(
-      CookieType.ShopInformation
+    const initialValue = getCookieValue<{ route: string; routeState: string }>(
+      CookieType.DriverInformation
     );
     if (initialValue) {
       form.setFieldsValue(initialValue);
     }
   }, [form]);
+
+  const handlePayment = () => {
+    if (paymentUrl) {
+      window.open(paymentUrl, '_self');
+    }
+  };
+
   return (
     <Flex style={{ padding: 24, flex: 1 }}>
       <Form
@@ -52,14 +135,15 @@ export const RouteInformation = () => {
         <Form.Item
           name="route"
           label="Assign Route"
-          rules={[{ required: true }]}
+          rules={[{ required: true, message: 'Please select a route' }]}
         >
           <Select
             placeholder={"Select route"}
             allowClear
             showSearch
-            filterOption={false}
-            onSearch={onSearch}
+            filterOption={(input, option) =>
+              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
             options={[
               { label: "Interstate", value: "is" },
               { label: "TownState", value: "ts" },
@@ -70,7 +154,7 @@ export const RouteInformation = () => {
         <Form.Item
           name="routeState"
           label="Assign Route State"
-          rules={[{ required: true }]}
+          rules={[{ required: true, message: 'Please select a state' }]}
         >
           <Select
             placeholder="Select state"
@@ -98,8 +182,8 @@ export const RouteInformation = () => {
               >
                 Previous
               </Button>
-              <Button loading={false} type="primary" htmlType="submit">
-                Next
+              <Button loading={registerVehicle.isPending} type="primary" htmlType="submit">
+                Submit
               </Button>
             </Space>
           </Form.Item>
@@ -108,7 +192,11 @@ export const RouteInformation = () => {
       {isModalOpen && (
         <AllocationSuccessModal
           isOpen={isModalOpen}
-          closeModal={() => setIsModalOpen(false)}
+          closeModal={() => {
+            setIsModalOpen(false);
+            router.push('/vehicles'); // Redirect to vehicles list after success
+          }}
+          onPaymentClick={handlePayment}
         />
       )}
     </Flex>

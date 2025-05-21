@@ -9,71 +9,20 @@ import {
   Spin,
   Alert,
   Button,
+  Space,
 } from "antd";
 import styles from "../../style.module.css";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { fetcher } from "@/utils/fetcher";
-import { PrinterOutlined, ArrowLeftOutlined } from "@ant-design/icons";
-import React, { useRef } from "react";
+import { PrinterOutlined, ArrowLeftOutlined, QrcodeOutlined } from "@ant-design/icons";
+import React, { useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
+import { QRCodeModal } from "../payment-successful/qr-code-modal";
 
 const { Title, Text } = Typography;
 
-type VehicleCertificate = {
-  _id: string;
-  registrationNumber: string;
-  chassisNumber: string;
-  engineNumber: string;
-  fuelType: string;
-  issuingState: string;
-  make: string;
-  model: string;
-  vehiclePhotoUrl: string;
-  type: string;
-  yearOfManufacture: string;
-  capacity: string;
-  owner: {
-    name: string;
-    phoneNumber: string;
-    email: string;
-    dateOfBirth: string;
-    address: string;
-    city: string;
-    gender: string;
-    idNumber: string;
-    lga: string;
-    idDocumentUrl: string;
-    state: string;
-  };
-  driver: {
-    fullName: string;
-    dateOfBirth: string;
-    gender: string;
-    nationality: string;
-    state: string;
-    lga: string;
-    residentialAddress: string;
-    phoneNumber: string;
-    email: string;
-    nin: string;
-    validIdUrl: string;
-    passportUrl: string;
-    licenseNumber: string;
-    licenseClass: string;
-    issuingAuthority: string;
-    issueDate: string;
-    expiryDate: string;
-    licenseUrl: string;
-  };
-  route: {
-    stateCode: string;
-    route: string;
-    routeCode: string;
-    registrationNo?: string;
-    state: string;
-  };
-};
+
 
 const useGetVehicleQuery = (vehicleId: string) => {
   return useQuery({
@@ -92,6 +41,7 @@ export default function VehicleCertificatePage() {
   const vehicleId = params?.id as string;
   const router = useRouter();
   const printRef = useRef<HTMLDivElement>(null);
+  const [isQRModalOpen, setIsQRModalOpen] = useState(false);
 
   const handlePrint = useReactToPrint({
     contentRef: printRef,
@@ -101,10 +51,12 @@ export default function VehicleCertificatePage() {
         size: A4 Landscape;
         margin: 24px;
       }
-      
     }`,
   });
-  console.log(vehicleId);
+
+  const handleQRCodeClick = () => {
+    setIsQRModalOpen(true);
+  };
 
   const { data, isLoading, error } = useGetVehicleQuery(vehicleId);
 
@@ -149,9 +101,14 @@ export default function VehicleCertificatePage() {
         <Button icon={<ArrowLeftOutlined />} onClick={() => router.back()}>
           Back
         </Button>
-        <Button icon={<PrinterOutlined />} type="primary" onClick={handlePrint}>
-          Print
-        </Button>
+        <Space>
+          <Button icon={<QrcodeOutlined />} onClick={handleQRCodeClick}>
+            QR Code
+          </Button>
+          <Button icon={<PrinterOutlined />} type="primary" onClick={handlePrint}>
+            Print
+          </Button>
+        </Space>
       </div>
       <div ref={printRef}>
         <Card
@@ -529,6 +486,12 @@ export default function VehicleCertificatePage() {
           </div>
         </Card>
       </div>
+      <QRCodeModal
+        isOpen={isQRModalOpen}
+        onClose={() => setIsQRModalOpen(false)}
+        vehicleUrl={`${window.location.origin}/vehicles/${vehicleId}`}
+        title="Vehicle Details QR Code"
+      />
     </div>
   );
 }

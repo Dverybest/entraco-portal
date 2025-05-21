@@ -1,6 +1,6 @@
 "use client";
 import { PageHeader } from "@/components";
-import { PlusOutlined, MoreOutlined } from "@ant-design/icons";
+import { PlusOutlined, MoreOutlined, QrcodeOutlined } from "@ant-design/icons";
 import {
   Button,
   DatePicker,
@@ -19,6 +19,8 @@ import {
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { fetcher } from "@/utils/fetcher";
+import { QRCodeModal } from "./payment-successful/qr-code-modal";
+import { useState } from "react";
 
 type SearchProps = GetProps<typeof Input.Search>;
 type RangePickerProps = GetProps<typeof DatePicker.RangePicker>;
@@ -51,6 +53,8 @@ export default function Page() {
   } = theme.useToken();
 
   const { data, isLoading, error } = useGetVehiclesQuery();
+  const [isQRModalOpen, setIsQRModalOpen] = useState(false);
+  const [selectedVehicleUrl, setSelectedVehicleUrl] = useState("");
 
   const vehicles = data?.data || [];
 
@@ -66,6 +70,12 @@ export default function Page() {
   }));
 
   const router = useRouter();
+
+  const handleQRCodeClick = (vehicleId: string) => {
+    const url = `${window.location.origin}/vehicles/${vehicleId}`;
+    setSelectedVehicleUrl(url);
+    setIsQRModalOpen(true);
+  };
 
   const columns = [
     {
@@ -112,7 +122,9 @@ export default function Page() {
             <Menu.Item key="view" onClick={() => router.push(`/vehicles/${id}`)}>
               View
             </Menu.Item>
-            {/* Add more Menu.Item here for other actions */}
+            <Menu.Item key="qr" onClick={() => handleQRCodeClick(id)}>
+              <QrcodeOutlined /> QR Code
+            </Menu.Item>
           </Menu>
         );
         return (
@@ -199,6 +211,12 @@ export default function Page() {
           }}
         />
       )}
+      <QRCodeModal
+        isOpen={isQRModalOpen}
+        onClose={() => setIsQRModalOpen(false)}
+        vehicleUrl={selectedVehicleUrl}
+        title="Vehicle Details QR Code"
+      />
     </section>
   );
 }
