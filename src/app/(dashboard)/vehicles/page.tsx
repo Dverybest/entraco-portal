@@ -1,6 +1,6 @@
 "use client";
 import { PageHeader } from "@/components";
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, MoreOutlined } from "@ant-design/icons";
 import {
   Button,
   DatePicker,
@@ -9,23 +9,63 @@ import {
   GetProps,
   Input,
   Select,
-  Space,
   Spin,
   Table,
   theme,
+  Alert,
+  Dropdown,
+  Menu,
 } from "antd";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { fetcher } from "@/utils/fetcher";
+
 type SearchProps = GetProps<typeof Input.Search>;
 type RangePickerProps = GetProps<typeof DatePicker.RangePicker>;
 const { Search } = Input;
 const { RangePicker } = DatePicker;
+
+type VehicleListItem = {
+  _id: string;
+  registrationNumber: string;
+  type: string;
+  owner: { name: string; phoneNumber: string };
+  route: { route: string };
+  createdAt: string;
+};
+
+const useGetVehiclesQuery = () => {
+  return useQuery({
+    queryKey: ["vehicles"],
+    queryFn: () =>
+      fetcher<{ success: boolean; data: VehicleListItem[] }>({
+        url: "/api/vehicles",
+        method: "GET",
+      }),
+  });
+};
 
 export default function Page() {
   const {
     token: { colorBgContainer },
   } = theme.useToken();
 
-  const dataSource: [] = [];
+  const { data, isLoading, error } = useGetVehiclesQuery();
+
+  const vehicles = data?.data || [];
+
+  const dataSource = vehicles.map((v, idx) => ({
+    key: idx + 1,
+    id: v._id,
+    routeNumber: v.registrationNumber,
+    type: v.type,
+    ownerName: v.owner?.name,
+    shopNumber: v.route?.route,
+    phoneNumber: v.owner?.phoneNumber,
+    date: v.createdAt ? new Date(v.createdAt).toLocaleDateString() : "",
+  }));
+
+  const router = useRouter();
 
   const columns = [
     {
@@ -67,10 +107,18 @@ export default function Page() {
       title: "Action",
       key: "action",
       render: ({ id }: { id: string }) => {
+        const menu = (
+          <Menu>
+            <Menu.Item key="view" onClick={() => router.push(`/vehicles/${id}`)}>
+              View
+            </Menu.Item>
+            {/* Add more Menu.Item here for other actions */}
+          </Menu>
+        );
         return (
-          <Space size="middle">
-            <Link href={`/vehicles/${id}`}>View</Link>
-          </Space>
+          <Dropdown overlay={menu} trigger={["click"]}>
+            <Button type="text" icon={<MoreOutlined />} />
+          </Dropdown>
         );
       },
     },
@@ -83,6 +131,7 @@ export default function Page() {
   };
   const onSearch: SearchProps["onSearch"] = (value, _e, info) =>
     console.log(info?.source, value);
+
   return (
     <section
       style={{
@@ -136,16 +185,20 @@ export default function Page() {
           style={{ width: 200 }}
         />
       </Flex>
-      <Spin spinning={false}>
+      {isLoading ? (
+        <Spin spinning={true} style={{ display: "block", margin: "100px auto" }} />
+      ) : error ? (
+        <Alert type="error" message="Error loading vehicles" description={error instanceof Error ? error.message : "Unknown error"} style={{ maxWidth: 600, margin: "100px auto" }} />
+      ) : (
         <Table
           dataSource={dataSource}
           columns={columns}
           pagination={{
-            total: 0,
-            pageSize: 1,
+            total: vehicles.length,
+            pageSize: 10,
           }}
         />
-      </Spin>
+      )}
     </section>
   );
 }
