@@ -4,8 +4,7 @@ import { getCookieValue, setCookieValue } from "@/utils";
 import { fetcher } from "@/utils/fetcher";
 import { Button, Flex, Form, Select, Space, message } from "antd";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
-import { AllocationSuccessModal } from "./allocation-success-modal";
+import { useEffect, useMemo} from "react";
 import { states } from "../data";
 import { useMutation } from "@tanstack/react-query";
 import dayjs from "dayjs";
@@ -48,8 +47,6 @@ const cleanDriverInfo = (driverInfo: IDriverInformation) => {
 };
 
 export const RouteInformation = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [paymentUrl, setPaymentUrl] = useState<string>("");
   const [form] = Form.useForm();
   const router = useRouter();
 
@@ -92,8 +89,8 @@ export const RouteInformation = () => {
         Object.values(CookieType).forEach((cookieType) => {
           setCookieValue(cookieType, '');
         });
-        setPaymentUrl(response.data.paymentUrl);
-        setIsModalOpen(true);
+        window.open(response.data.paymentUrl, '_self');
+ 
       } else {
         message.error('Registration successful but payment URL not received');
       }
@@ -117,11 +114,7 @@ export const RouteInformation = () => {
     }
   }, [form]);
 
-  const handlePayment = () => {
-    if (paymentUrl) {
-      window.open(paymentUrl, '_self');
-    }
-  };
+
 
   return (
     <Flex style={{ padding: 24, flex: 1 }}>
@@ -189,7 +182,7 @@ export const RouteInformation = () => {
           </Form.Item>
         </Flex>
       </Form>
-      {isModalOpen && (
+      {/* {isModalOpen && (
         <AllocationSuccessModal
           isOpen={isModalOpen}
           closeModal={() => {
@@ -198,7 +191,7 @@ export const RouteInformation = () => {
           }}
           onPaymentClick={handlePayment}
         />
-      )}
+      )} */}
     </Flex>
   );
 };
