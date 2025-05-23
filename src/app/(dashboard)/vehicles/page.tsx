@@ -44,7 +44,7 @@ export default function Page() {
   const dataSource = data?.data.map((vehicle, index) => ({
     key: index + 1,
     id: vehicle._id,
-    routeNumber: vehicle.registrationNumber,
+    registrationNumber: vehicle.registrationNumber,
     type: vehicle.type,
     ownerName: vehicle.owner?.name,
     shopNumber: vehicle.route?.route,
@@ -67,9 +67,9 @@ export default function Page() {
       key: "key",
     },
     {
-      title: "Route number",
-      dataIndex: "routeNumber",
-      key: "routeNumber",
+      title: "Registration Number",
+      dataIndex: "registrationNumber",
+      key: "registrationNumber",
     },
     {
       title: "Vehicle Type",

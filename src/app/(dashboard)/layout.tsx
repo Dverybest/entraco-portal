@@ -1,5 +1,6 @@
 "use client";
 import {
+  HomeOutlined,
   LoginOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -88,11 +89,11 @@ const App: React.FC<
           defaultSelectedKeys={[pathName]}
           activeKey={activeKey}
           items={[
-            // {
-            //   key: "/",
-            //   icon: <HomeOutlined />,
-            //   label: "Home",
-            // },
+            {
+              key: "/",
+              icon: <HomeOutlined />,
+              label: "Home",
+            },
             {
               key: "/vehicles",
               icon: <ShopOutlined />,
