@@ -28,7 +28,7 @@ export default function CreateAllocation({
     "/vehicles/register/driver-information": {
       step: 2,
       crumb: "Driver Information",
-      cookieDependency: CookieType.BusinessInformation,
+      cookieDependency: CookieType.OwnerInformation,
     },
     "/vehicles/register/route-assignment": {
       step: 3,

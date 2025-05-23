@@ -1,6 +1,6 @@
 "use client";
 import { PageHeader } from "@/components";
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, MoreOutlined, QrcodeOutlined } from "@ant-design/icons";
 import {
   Button,
   DatePicker,
@@ -9,23 +9,56 @@ import {
   GetProps,
   Input,
   Select,
-  Space,
   Spin,
   Table,
   theme,
+  Alert,
+  Dropdown,
+  Menu,
 } from "antd";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+import { QRCodeModal } from "./payment-successful/qr-code-modal";
+import { useState } from "react";
+import { useGetVehiclesQuery } from "@/hooks/api/useGetVehiclesQuery";
+
 type SearchProps = GetProps<typeof Input.Search>;
 type RangePickerProps = GetProps<typeof DatePicker.RangePicker>;
 const { Search } = Input;
 const { RangePicker } = DatePicker;
+
+
+
+
 
 export default function Page() {
   const {
     token: { colorBgContainer },
   } = theme.useToken();
 
-  const dataSource: [] = [];
+  const { data, isLoading, error } = useGetVehiclesQuery();
+  const [isQRModalOpen, setIsQRModalOpen] = useState(false);
+  const [selectedVehicleUrl, setSelectedVehicleUrl] = useState("");
+
+
+  const dataSource = data?.data.map((vehicle, index) => ({
+    key: index + 1,
+    id: vehicle._id,
+    registrationNumber: vehicle.registrationNumber,
+    type: vehicle.type,
+    ownerName: vehicle.owner?.name,
+    shopNumber: vehicle.route?.route,
+    phoneNumber: vehicle.owner?.phoneNumber,
+    date: vehicle.createdAt ? new Date(vehicle.createdAt).toLocaleDateString() : "",
+  }));
+
+  const router = useRouter();
+
+  const handleQRCodeClick = (vehicleId: string) => {
+    const url = `${window.location.origin}/vehicles/${vehicleId}`;
+    setSelectedVehicleUrl(url);
+    setIsQRModalOpen(true);
+  };
 
   const columns = [
     {
@@ -34,9 +67,9 @@ export default function Page() {
       key: "key",
     },
     {
-      title: "Route number",
-      dataIndex: "routeNumber",
-      key: "routeNumber",
+      title: "Registration Number",
+      dataIndex: "registrationNumber",
+      key: "registrationNumber",
     },
     {
       title: "Vehicle Type",
@@ -67,10 +100,20 @@ export default function Page() {
       title: "Action",
       key: "action",
       render: ({ id }: { id: string }) => {
+        const menu = (
+          <Menu>
+            <Menu.Item key="view" onClick={() => router.push(`/vehicles/${id}`)}>
+              View
+            </Menu.Item>
+            <Menu.Item key="qr" onClick={() => handleQRCodeClick(id)}>
+              <QrcodeOutlined /> QR Code
+            </Menu.Item>
+          </Menu>
+        );
         return (
-          <Space size="middle">
-            <Link href={`/vehicles/${id}`}>View</Link>
-          </Space>
+          <Dropdown overlay={menu} trigger={["click"]}>
+            <Button type="text" icon={<MoreOutlined />} />
+          </Dropdown>
         );
       },
     },
@@ -83,6 +126,7 @@ export default function Page() {
   };
   const onSearch: SearchProps["onSearch"] = (value, _e, info) =>
     console.log(info?.source, value);
+
   return (
     <section
       style={{
@@ -136,16 +180,26 @@ export default function Page() {
           style={{ width: 200 }}
         />
       </Flex>
-      <Spin spinning={false}>
+      {isLoading ? (
+        <Spin spinning={true} style={{ display: "block", margin: "100px auto" }} />
+      ) : error ? (
+        <Alert type="error" message="Error loading vehicles" description={error instanceof Error ? error.message : "Unknown error"} style={{ maxWidth: 600, margin: "100px auto" }} />
+      ) : (
         <Table
           dataSource={dataSource}
           columns={columns}
           pagination={{
-            total: 0,
-            pageSize: 1,
+            total: dataSource?.length,
+            pageSize: 10,
           }}
         />
-      </Spin>
+      )}
+      <QRCodeModal
+        isOpen={isQRModalOpen}
+        onClose={() => setIsQRModalOpen(false)}
+        vehicleUrl={selectedVehicleUrl}
+        title="Vehicle Details QR Code"
+      />
     </section>
   );
 }

@@ -17,7 +17,7 @@ import {
   Spin,
   theme,
 } from "antd";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import { redirect, usePathname, useRouter } from "next/navigation";
 import React, { useMemo, useState } from "react";
@@ -30,11 +30,10 @@ const App: React.FC<
 > = ({ children }) => {
   const router = useRouter();
   const pathName = usePathname();
-  const { status } = useSession();
-
-  const { firstName, lastName } = { firstName: "John", lastName: "Doe" }; // Replace with actual user data
+  const { status, data: session } = useSession();
   const [collapsed, setCollapsed] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   const activeKey = useMemo(() => {
     if (pathName.includes("market")) {
       return "/dashboard/markets";
@@ -44,12 +43,15 @@ const App: React.FC<
       return "/dashboard";
     }
   }, [pathName]);
+
   const {
     token: { colorBgContainer },
   } = theme.useToken();
+
   if (status === "unauthenticated") {
     redirect("/login");
   }
+
   if (status === "loading") {
     return (
       <center>
@@ -57,6 +59,15 @@ const App: React.FC<
       </center>
     );
   }
+
+  const handleLogout = async () => {
+    setIsModalOpen(false);
+    await signOut({
+      redirect: true,
+      callbackUrl: "/login",
+    });
+  };
+
   return (
     <Layout style={{ height: "100vh", overflowY: "hidden" }}>
       <Sider
@@ -64,13 +75,11 @@ const App: React.FC<
         collapsible
         theme={"light"}
         collapsed={collapsed}
-        style={{ background: colorBgContainer }}
-      >
+        style={{ background: colorBgContainer }}>
         <Flex
           justify={"center"}
           align={"center"}
-          style={{ marginBottom: 24, marginTop: 24 }}
-        >
+          style={{ marginBottom: 24, marginTop: 24 }}>
           <Image src={"/entraco-logo.jpeg"} alt="" width={70} height={70} />
         </Flex>
         <Menu
@@ -102,8 +111,7 @@ const App: React.FC<
             alignItems: "center",
             justifyContent: "space-between",
             paddingRight: 24,
-          }}
-        >
+          }}>
           <Button
             type="text"
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
@@ -124,8 +132,7 @@ const App: React.FC<
                   onClick: () => setIsModalOpen(true),
                 },
               ],
-            }}
-          >
+            }}>
             <Avatar
               style={{
                 verticalAlign: "middle",
@@ -134,9 +141,8 @@ const App: React.FC<
                 color: "black",
               }}
               size="large"
-              gap={2}
-            >
-              {`${firstName?.[0]}${lastName?.[0]}`}
+              gap={2}>
+              {session?.user?.name?.[0] || "U"}
             </Avatar>
           </Dropdown>
         </Header>
@@ -150,15 +156,11 @@ const App: React.FC<
           variant: "solid",
           color: "danger",
         }}
-        onOk={() => {
-          router.replace("/");
-          setIsModalOpen(false);
-        }}
+        onOk={handleLogout}
         onCancel={() => {
           setIsModalOpen(false);
-        }}
-      >
-        <p> Are you sure you want to logout?</p>
+        }}>
+        <p>Are you sure you want to logout?</p>
       </Modal>
     </Layout>
   );

@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { useStyles } from "./useStyles";
+import { useState } from "react";
 type ILoginForm = {
   email: string;
   password: string;
@@ -14,19 +15,23 @@ type ILoginForm = {
 export default function LoginPage() {
   const router = useRouter();
   const styles = useStyles();
+  const [isLoading, setIsLoading] = useState(false);
 
   const onFinish = async (values: ILoginForm) => {
+    setIsLoading(true);
     const res = await signIn("credentials", {
       email: values.email,
       password: values.password,
       redirect: false,
     });
+
     if (res?.ok) {
       toast.success("Login successful");
-      router.replace("/");
+      router.replace("/vehicles");
     } else {
       toast.error("Invalid email or password");
     }
+    setIsLoading(false);
   };
 
   return (
@@ -77,7 +82,7 @@ export default function LoginPage() {
           </a>
         </Form.Item>
         <Form.Item style={{ marginBottom: "0px" }}>
-          <Button loading={false} block type="primary" htmlType="submit">
+          <Button loading={isLoading} disabled={isLoading} block type="primary" htmlType="submit">
             Login
           </Button>
         </Form.Item>

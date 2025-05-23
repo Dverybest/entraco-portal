@@ -1,65 +1,54 @@
 "use client";
-import { CookieType } from "@/cookieType";
-import { getCookieValue, setCookieValue, useDebounceInput } from "@/utils";
-import { Button, Flex, Form, Select, Space } from "antd";
+
+import { useFormData } from "@/hooks/useFormData";
+import { useRegisterVehicleMutation } from "@/hooks/api/useRegisterVehicleMutation";
+import { Form, Select, Button, Flex, Space } from "antd";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
-import { AllocationSuccessModal } from "./allocation-success-modal";
+import { useEffect } from "react";
 import { states } from "../data";
 
-export const RouteInformation = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+export default function RouteInformation() {
   const [form] = Form.useForm();
   const router = useRouter();
-
-  const [searchMarket, setSearchMarket] = useState("");
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const _search = useDebounceInput(searchMarket);
-
-  const {} = useMemo(() => {
-    const applicationInformation = getCookieValue<IVehicleInfo>(
-      CookieType.VehicleInformation
-    );
-    return {
-      applicationInformation,
-    };
-  }, []);
-
-  const onFinish = (values: IVehicleInfo) => {
-    setCookieValue(CookieType.ShopInformation, values);
-  };
-  const onSearch = (value: string) => {
-    setSearchMarket(value);
-  };
+  const { vehicleInfo, ownerInfo, driverInfo } = useFormData();
+  const registerVehicle = useRegisterVehicleMutation();
 
   useEffect(() => {
-    const initialValue = getCookieValue<IVehicleInfo>(
-      CookieType.ShopInformation
-    );
-    if (initialValue) {
-      form.setFieldsValue(initialValue);
+    if (!vehicleInfo || !ownerInfo || !driverInfo) {
+      router.push("/vehicles/register");
     }
-  }, [form]);
+  }, [vehicleInfo, ownerInfo, driverInfo, router]);
+
+  const onFinish = (values: { route: string; routeState: string }) => {
+    if (!vehicleInfo || !ownerInfo || !driverInfo)  return;
+    registerVehicle.mutate({
+      ...values,
+      vehicleInfo,
+      ownerInfo,
+      driverInfo,
+    });
+  };
+
   return (
-    <Flex style={{ padding: 24, flex: 1 }}>
+    <Flex vertical gap={24}>
       <Form
-        layout="vertical"
         form={form}
-        name="control-hooks"
+        layout="vertical"
         onFinish={onFinish}
-        style={{ maxWidth: 600, width: "100%" }}
+        requiredMark={false}
       >
         <Form.Item
+          label="Route"
           name="route"
-          label="Assign Route"
-          rules={[{ required: true }]}
+          rules={[{ required: true, message: "Please enter the route" }]}
         >
           <Select
-            placeholder={"Select route"}
+            placeholder="Select route"
             allowClear
             showSearch
-            filterOption={false}
-            onSearch={onSearch}
+            filterOption={(input, option) =>
+              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
             options={[
               { label: "Interstate", value: "is" },
               { label: "TownState", value: "ts" },
@@ -67,17 +56,14 @@ export const RouteInformation = () => {
             ]}
           />
         </Form.Item>
+
         <Form.Item
+          label="State"
           name="routeState"
-          label="Assign Route State"
-          rules={[{ required: true }]}
+          rules={[{ required: true, message: "Please select the state" }]}
         >
           <Select
             placeholder="Select state"
-            showSearch
-            filterOption={(input, option) =>
-              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
-            }
             options={Object.keys(states).map((state) => ({
               label: state,
               value: state,
@@ -85,32 +71,19 @@ export const RouteInformation = () => {
           />
         </Form.Item>
 
-        <Flex justify={"flex-end"} align={"flex-end"}>
-          <Form.Item>
-            <Space>
-              <Button
-                onClick={() => {
-                  router.back();
-                }}
-                type={"default"}
-                variant={"outlined"}
-                htmlType={"button"}
-              >
-                Previous
-              </Button>
-              <Button loading={false} type="primary" htmlType="submit">
-                Next
-              </Button>
-            </Space>
-          </Form.Item>
-        </Flex>
+        <Form.Item>
+          <Space>
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={registerVehicle.isPending}
+            >
+              Register Vehicle
+            </Button>
+            <Button onClick={() => router.back()}>Back</Button>
+          </Space>
+        </Form.Item>
       </Form>
-      {isModalOpen && (
-        <AllocationSuccessModal
-          isOpen={isModalOpen}
-          closeModal={() => setIsModalOpen(false)}
-        />
-      )}
     </Flex>
   );
-};
+}
