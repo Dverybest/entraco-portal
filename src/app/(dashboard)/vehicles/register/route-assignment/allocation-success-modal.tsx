@@ -28,14 +28,7 @@ export const AllocationSuccessModal: React.FC<{
           <Button type="primary" onClick={onPaymentClick}>
             Proceed to Payment
           </Button>
-          {/* <Button onClick={() => {
-            reactToPrintFn();
-          }}>
-            Print Allocation Letter
-          </Button>
-          <Button onClick={closeModal}>
-            Close
-          </Button> */}
+
         </Space>
       </div>
     </Modal>

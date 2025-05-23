@@ -17,35 +17,19 @@ import {
   Menu,
 } from "antd";
 import { useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
-import { fetcher } from "@/utils/fetcher";
+
 import { QRCodeModal } from "./payment-successful/qr-code-modal";
 import { useState } from "react";
+import { useGetVehiclesQuery } from "@/hooks/api/useGetVehiclesQuery";
 
 type SearchProps = GetProps<typeof Input.Search>;
 type RangePickerProps = GetProps<typeof DatePicker.RangePicker>;
 const { Search } = Input;
 const { RangePicker } = DatePicker;
 
-type VehicleListItem = {
-  _id: string;
-  registrationNumber: string;
-  type: string;
-  owner: { name: string; phoneNumber: string };
-  route: { route: string };
-  createdAt: string;
-};
 
-const useGetVehiclesQuery = () => {
-  return useQuery({
-    queryKey: ["vehicles"],
-    queryFn: () =>
-      fetcher<{ success: boolean; data: VehicleListItem[] }>({
-        url: "/api/vehicles",
-        method: "GET",
-      }),
-  });
-};
+
+
 
 export default function Page() {
   const {
@@ -56,9 +40,8 @@ export default function Page() {
   const [isQRModalOpen, setIsQRModalOpen] = useState(false);
   const [selectedVehicleUrl, setSelectedVehicleUrl] = useState("");
 
-  const vehicles = data?.data || [];
 
-  const dataSource = vehicles.map((v, idx) => ({
+  const dataSource = data?.data.map((v, idx) => ({
     key: idx + 1,
     id: v._id,
     routeNumber: v.registrationNumber,
@@ -206,7 +189,7 @@ export default function Page() {
           dataSource={dataSource}
           columns={columns}
           pagination={{
-            total: vehicles.length,
+            total: dataSource?.length,
             pageSize: 10,
           }}
         />

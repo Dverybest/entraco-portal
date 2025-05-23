@@ -13,28 +13,18 @@ import {
 } from "antd";
 import styles from "../../style.module.css";
 import { useParams, useRouter } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
-import { fetcher } from "@/utils/fetcher";
-import { PrinterOutlined, ArrowLeftOutlined, QrcodeOutlined } from "@ant-design/icons";
+
+import {
+  PrinterOutlined,
+  ArrowLeftOutlined,
+  QrcodeOutlined,
+} from "@ant-design/icons";
 import React, { useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
 import { QRCodeModal } from "../payment-successful/qr-code-modal";
+import { useGetSingleVehicleQuery } from "@/hooks/api/useGetSingleVehicleQuery";
 
 const { Title, Text } = Typography;
-
-
-
-const useGetVehicleQuery = (vehicleId: string) => {
-  return useQuery({
-    queryKey: ["vehicle", vehicleId],
-    queryFn: () =>
-      fetcher<{ success: boolean; data: VehicleCertificate }>({
-        url: `/api/vehicles/${vehicleId}`,
-        method: "GET",
-      }),
-    enabled: !!vehicleId,
-  });
-};
 
 export default function VehicleCertificatePage() {
   const params = useParams();
@@ -58,7 +48,7 @@ export default function VehicleCertificatePage() {
     setIsQRModalOpen(true);
   };
 
-  const { data, isLoading, error } = useGetVehicleQuery(vehicleId);
+  const { data, isLoading, error } = useGetSingleVehicleQuery(vehicleId);
 
   if (isLoading) {
     return <Spin style={{ display: "block", margin: "100px auto" }} />;
@@ -105,7 +95,10 @@ export default function VehicleCertificatePage() {
           <Button icon={<QrcodeOutlined />} onClick={handleQRCodeClick}>
             QR Code
           </Button>
-          <Button icon={<PrinterOutlined />} type="primary" onClick={handlePrint}>
+          <Button
+            icon={<PrinterOutlined />}
+            type="primary"
+            onClick={handlePrint}>
             Print
           </Button>
         </Space>

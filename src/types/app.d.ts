@@ -1,3 +1,4 @@
+
 interface IVehicleInfo {
   capacity: string;
   chassisNumber: string;
@@ -46,8 +47,8 @@ interface IDriverInformation {
 
   // Driver's License Information
   licenseNumber: string;
-  licenseClass: "A" | "B" | "C" | "D" | "E" | "F";
-  issuingAuthority: "FRSC" | "State VIO";
+  licenseClass: LicenseClass;
+  issuingAuthority: IssuingAuthority;
   issueDate: string; // ISO string format when saved to cookie
   expiryDate: string; // ISO string format when saved to cookie
   licenseUrl: string;
@@ -143,3 +144,14 @@ type VehicleCertificate = {
     state: string;
   };
 };
+
+
+enum TagType {
+  VEHICLE = "vehicle",
+  OWNER = "owner",
+  VERIFY_PAYMENT = "verify-payment",
+  REGISTER_VEHICLE = "register-vehicle",
+  GET_VEHICLES = "get-vehicles",
+  GET_SINGLE_VEHICLE = "get-single-vehicle",
+
+}

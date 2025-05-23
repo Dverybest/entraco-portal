@@ -27,7 +27,7 @@ export default function LoginPage() {
 
     if (res?.ok) {
       toast.success("Login successful");
-      router.replace("/");
+      router.replace("/vehicles");
     } else {
       toast.error("Invalid email or password");
     }
