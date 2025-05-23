@@ -41,15 +41,15 @@ export default function Page() {
   const [selectedVehicleUrl, setSelectedVehicleUrl] = useState("");
 
 
-  const dataSource = data?.data.map((v, idx) => ({
-    key: idx + 1,
-    id: v._id,
-    routeNumber: v.registrationNumber,
-    type: v.type,
-    ownerName: v.owner?.name,
-    shopNumber: v.route?.route,
-    phoneNumber: v.owner?.phoneNumber,
-    date: v.createdAt ? new Date(v.createdAt).toLocaleDateString() : "",
+  const dataSource = data?.data.map((vehicle, index) => ({
+    key: index + 1,
+    id: vehicle._id,
+    routeNumber: vehicle.registrationNumber,
+    type: vehicle.type,
+    ownerName: vehicle.owner?.name,
+    shopNumber: vehicle.route?.route,
+    phoneNumber: vehicle.owner?.phoneNumber,
+    date: vehicle.createdAt ? new Date(vehicle.createdAt).toLocaleDateString() : "",
   }));
 
   const router = useRouter();

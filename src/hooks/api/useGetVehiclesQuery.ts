@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetcher } from "@/utils/fetcher";
+import { TagType } from "@/types/enum";
 
 type VehicleListItem = {
   _id: string;
@@ -12,7 +13,7 @@ type VehicleListItem = {
 
 export const useGetVehiclesQuery = () => {
   return useQuery({
-    queryKey: [TagType.GET_VEHICLES],
+    queryKey: [TagType.VEHICLE],
     queryFn: () =>
       fetcher<{ success: boolean; data: VehicleListItem[] }>({
         url: "/api/vehicles",

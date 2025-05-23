@@ -146,12 +146,3 @@ type VehicleCertificate = {
 };
 
 
-enum TagType {
-  VEHICLE = "vehicle",
-  OWNER = "owner",
-  VERIFY_PAYMENT = "verify-payment",
-  REGISTER_VEHICLE = "register-vehicle",
-  GET_VEHICLES = "get-vehicles",
-  GET_SINGLE_VEHICLE = "get-single-vehicle",
-
-}
