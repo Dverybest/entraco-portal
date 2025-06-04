@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { Card, Typography, Button, message,  Row, Col, Flex, theme } from 'antd';
+import { Card, Typography, Button, message, Row, Col, Flex, theme, Select } from 'antd';
 import { Html5Qrcode } from 'html5-qrcode';
 import { ScanOutlined } from "@ant-design/icons";
 import React from "react";
@@ -12,56 +12,71 @@ const { Title, Text } = Typography;
 export default function ScanPage() {
   const { token: { colorPrimary } } = theme.useToken();
   const [scanResult, setScanResult] = useState<string | null>(null);
+  const [cameras, setCameras] = useState<{ id: string; label: string }[]>([]);
+  const [selectedCamera, setSelectedCamera] = useState<string>('');
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    startScanner();
-
+    getCameras();
     return () => {
       if (scannerRef.current) {
         scannerRef.current.stop().catch(console.error);
       }
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const getCameras = async () => {
+    try {
+      if (typeof window === 'undefined') return;
+
+      const availableCameras = await Html5Qrcode.getCameras();
+      if (availableCameras && availableCameras.length) {
+        const formattedCameras = availableCameras.map(camera => ({
+          id: camera.id,
+          label: camera.label || `Camera ${camera.id}`
+        }));
+        setCameras(formattedCameras);
+        setSelectedCamera(formattedCameras[0].id);
+      } else {
+        message.error('No cameras found');
+      }
+    } catch (err) {
+      console.error('Error getting cameras:', err);
+      message.error('Failed to get camera list');
+    }
+  };
 
   const startScanner = async () => {
     try {
-      if (typeof window === 'undefined') return;
+      if (typeof window === 'undefined' || !selectedCamera) return;
 
       const html5QrCode = new Html5Qrcode('qr-reader');
       scannerRef.current = html5QrCode;
 
-      const cameras = await Html5Qrcode.getCameras();
-      if (cameras && cameras.length) {
-        const cameraId = cameras[0].id;
-        await html5QrCode.start(
-          cameraId,
-          {
-            fps: 10,
-            qrbox: { width: 250, height: 250 },
-          },
-          (decodedText) => {
-            setScanResult(decodedText);
-            message.success('QR Code scanned successfully!');
-            html5QrCode.stop().catch(console.error);
-            
-            // Extract vehicle ID from the URL
-            const vehicleId = decodedText.split('/').pop();
-            if (vehicleId) {
-              router.push(`/vehicles/${vehicleId}`);
-            } else {
-              message.error('Invalid QR code format');
-            }
-          },
-          (errorMessage) => {
-            console.warn(`QR Code scan error: ${errorMessage}`);
+      await html5QrCode.start(
+        selectedCamera,
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 },
+        },
+        (decodedText) => {
+          setScanResult(decodedText);
+          message.success('QR Code scanned successfully!');
+          html5QrCode.stop().catch(console.error);
+          
+          // Extract vehicle ID from the URL
+          const vehicleId = decodedText.split('/').pop();
+          if (vehicleId) {
+            router.push(`/vehicles/${vehicleId}`);
+          } else {
+            message.error('Invalid QR code format');
           }
-        );
-      } else {
-        message.error('No cameras found');
-      }
+        },
+        (errorMessage) => {
+          console.warn(`QR Code scan error: ${errorMessage}`);
+        }
+      );
     } catch (err) {
       console.error('Error starting scanner:', err);
       message.error('Failed to start camera');
@@ -70,6 +85,14 @@ export default function ScanPage() {
 
   const handleRescan = () => {
     setScanResult(null);
+    startScanner();
+  };
+
+  const handleCameraChange = (cameraId: string) => {
+    setSelectedCamera(cameraId);
+    if (scannerRef.current) {
+      scannerRef.current.stop().catch(console.error);
+    }
     startScanner();
   };
 
@@ -100,7 +123,19 @@ export default function ScanPage() {
               borderRadius: 12,
               boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
             }}>
-            <div id="qr-reader" style={{ width: '100%', maxWidth: 600, margin: '0 auto' }} />
+            <Flex vertical gap={16} align="center">
+              <Select
+                style={{ width: 300 }}
+                value={selectedCamera}
+                onChange={handleCameraChange}
+                options={cameras.map(camera => ({
+                  value: camera.id,
+                  label: camera.label
+                }))}
+                placeholder="Select a camera"
+              />
+              <div id="qr-reader" style={{ width: '100%', maxWidth: 600, margin: '0 auto' }} />
+            </Flex>
           </Card>
         </Col>
 
