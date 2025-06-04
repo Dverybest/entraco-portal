@@ -13,7 +13,6 @@ import {
 } from "antd";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
-// import {  useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 const { Header, Content } = Layout;
@@ -23,7 +22,6 @@ const ScanLayout: React.FC<
     children: React.ReactNode;
   }>
 > = ({ children }) => {
-//   const router = useRouter();
   const { data: session } = useSession();
   const [isModalOpen, setIsModalOpen] = useState(false);
 

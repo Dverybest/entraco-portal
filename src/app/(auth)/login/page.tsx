@@ -18,11 +18,10 @@ export default function LoginPage() {
   const router = useRouter();
   const styles = useStyles();
   const [isLoading, setIsLoading] = useState(false);
-  
 
   const onFinish = async (values: ILoginForm) => {
     const previousUrl = getCookieValue(CookieType.CurrentUrl) as string;
-    
+
     setIsLoading(true);
     const res = await signIn("credentials", {
       email: values.email,
@@ -30,20 +29,15 @@ export default function LoginPage() {
       redirect: false,
     });
 
-    console.log(res, "RESPONSE");
-    
-
     if (res?.ok) {
       // Get the token to access role
       const response = await fetch("/api/get-role");
       const data = await response.json();
 
-      console.log(data, "DATE FOR ROLE");
-      
-      
       toast.success("Login successful");
-      // Redirect to previous URL if available, otherwise use role-based redirect
-      router.replace(previousUrl || (data.role === "super_admin" ? "/" : "/vehicles"));
+      router.replace(
+        previousUrl || (data.role === "super_admin" ? "/" : "/scan-vehicles")
+      );
       if (previousUrl) {
         removeCookie(CookieType.CurrentUrl);
         removeCookie(CookieType.ExpiryMessage);
@@ -64,8 +58,7 @@ export default function LoginPage() {
         }}
         onFinish={onFinish}
         layout="vertical"
-        requiredMark="optional"
-      >
+        requiredMark="optional">
         <Form.Item
           name="email"
           rules={[
@@ -74,8 +67,7 @@ export default function LoginPage() {
               required: true,
               message: "Please input your Email!",
             },
-          ]}
-        >
+          ]}>
           <Input prefix={<MailOutlined />} placeholder="Email" />
         </Form.Item>
         <Form.Item
@@ -85,8 +77,7 @@ export default function LoginPage() {
               required: true,
               message: "Please input your Password!",
             },
-          ]}
-        >
+          ]}>
           <Input.Password
             prefix={<LockOutlined />}
             type="password"
@@ -102,7 +93,12 @@ export default function LoginPage() {
           </a>
         </Form.Item>
         <Form.Item style={{ marginBottom: "0px" }}>
-          <Button loading={isLoading} disabled={isLoading} block type="primary" htmlType="submit">
+          <Button
+            loading={isLoading}
+            disabled={isLoading}
+            block
+            type="primary"
+            htmlType="submit">
             Login
           </Button>
         </Form.Item>
