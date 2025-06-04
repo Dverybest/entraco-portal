@@ -9,20 +9,20 @@ interface Token extends JWT {
 }
 
 // Route configurations
-const AUTH_ROUTES = {
+const ALLOWED_ROUTES = {
   LOGIN: "/login",
   HOME: "/",
-  SCAN: "/scan",
+  SCAN: "/scan-vehicles",
 } as const;
 
 const ROLE_PERMISSIONS = {
   super_admin: {
     allowedRoutes: ["*"] as string[], // Super admin can access all routes
-    defaultRoute: AUTH_ROUTES.HOME,
+    defaultRoute: ALLOWED_ROUTES.HOME,
   },
   admin: {
     allowedRoutes: ["/scan-vehicles", "/scan-vehicles/[id]"] as string[], // Admin can only access scan routes
-    defaultRoute: AUTH_ROUTES.SCAN,
+    defaultRoute: ALLOWED_ROUTES.SCAN,
   },
 } as const;
 
@@ -86,7 +86,7 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const currentUrl = req.url;
   
-  const isAuthPage = pathname === AUTH_ROUTES.LOGIN;
+  const isAuthPage = pathname === ALLOWED_ROUTES.LOGIN;
   const tokenExpired = isTokenExpired(token);
   const isAuthenticated = !!token && !tokenExpired;
   const userRole = token?.role as UserRole;
@@ -99,7 +99,7 @@ export async function middleware(req: NextRequest) {
 
   // Handle unauthenticated users
   if (!isAuthenticated && !isAuthPage) {
-    return createRedirectResponse(AUTH_ROUTES.LOGIN, currentUrl, tokenExpired);
+    return createRedirectResponse(ALLOWED_ROUTES.LOGIN, currentUrl, tokenExpired);
   }
 
   // Handle authenticated users accessing protected routes
