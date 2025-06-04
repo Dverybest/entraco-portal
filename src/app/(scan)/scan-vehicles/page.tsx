@@ -13,7 +13,6 @@ import {
   Select,
   Spin,
 } from "antd";
-import { Html5Qrcode } from "html5-qrcode";
 import { ScanOutlined } from "@ant-design/icons";
 import React from "react";
 import { useRouter } from "next/navigation";
@@ -29,24 +28,26 @@ export default function ScanPage() {
     token: { colorPrimary },
   } = theme.useToken();
   const [scanResult, setScanResult] = useState<string | null>(null);
-  const [cameras, setCameras] = useState<{ id: string; label: string }[]>([]);
-  const [selectedCamera, setSelectedCamera] = useState<string>("");
-  const scannerRef = useRef<Html5Qrcode | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [isScanning, setIsScanning] = useState(false);
+  const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
+  const [selectedCamera, setSelectedCamera] = useState<string>("off");
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const codeReaderRef = useRef<BrowserMultiFormatReader | null>(null);
   const [isPending, startTransition] = useTransition();
   const lastScannedRef = useRef<{ code: string; timestamp: number } | null>(null);
   const router = useRouter();
 
   const stopScanner = async () => {
     try {
-      if (scannerRef.current) {
-        await scannerRef.current.stop();
-        await scannerRef.current.clear();
-        scannerRef.current = null;
-        setIsScanning(false);
-        await logToServer("Scanner stopped and cleared successfully");
+      if (codeReaderRef.current) {
+        codeReaderRef.current.reset();
       }
+
+      if (videoRef.current && videoRef.current.srcObject) {
+        const stream = videoRef.current.srcObject as MediaStream;
+        stream.getTracks().forEach((track) => track.stop());
+        videoRef.current.srcObject = null;
+      }
+      await logToServer("Scanner stopped successfully");
     } catch (err) {
       console.error("Error stopping scanner:", err);
       await logToServer(`Error stopping scanner: ${err}`);
@@ -57,24 +58,20 @@ export default function ScanPage() {
     try {
       if (typeof window === "undefined") return;
 
-      // First stop any existing scanner
       await stopScanner();
+      codeReaderRef.current = new BrowserMultiFormatReader();
 
-      const availableCameras = await Html5Qrcode.getCameras();
-      if (availableCameras && availableCameras.length) {
-        const formattedCameras = availableCameras.map((camera) => ({
-          id: camera.id,
-          label: camera.label || `Camera ${camera.id}`,
-        }));
-        setCameras(formattedCameras);
-        setSelectedCamera(formattedCameras[0].id);
-        await logToServer(
-          `Available cameras: ${JSON.stringify(formattedCameras)}`
-        );
-      } else {
+      const videoDevices = await codeReaderRef.current.listVideoInputDevices();
+      if (!videoDevices || videoDevices.length === 0) {
         message.error("No cameras found");
         await logToServer("No cameras found");
+        return;
       }
+      setCameras(videoDevices);
+      setSelectedCamera(videoDevices[0].deviceId);
+      await logToServer(
+        `Available cameras: ${JSON.stringify(videoDevices)}`
+      );
     } catch (err) {
       console.error("Error getting cameras:", err);
       message.error("Failed to get camera list");
@@ -87,70 +84,61 @@ export default function ScanPage() {
     return () => {
       stopScanner();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const startScanner = async () => {
-    if (isPending) return;
+  useEffect(() => {
+    if (selectedCamera === "off") {
+      stopScanner();
+    } else if (selectedCamera) {
+      startScanner(selectedCamera);
+    }
+  }, [selectedCamera]);
+
+  const startScanner = async (deviceId: string) => {
+    if (!codeReaderRef.current || !videoRef.current) return;
+
     try {
-      if (typeof window === "undefined" || !selectedCamera) return;
+      await logToServer(`Starting scanner with camera: ${deviceId}`);
 
-      // Ensure any existing scanner is stopped
-      await stopScanner();
-
-      const html5QrCode = new Html5Qrcode("qr-reader");
-      scannerRef.current = html5QrCode;
-      setIsScanning(true);
-
-      await logToServer(`Starting scanner with camera: ${selectedCamera}`);
-
-      await html5QrCode.start(
-        selectedCamera,
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 },
-          aspectRatio: 1.0,
-          disableFlip: true,
-        },
-        async (decodedText) => {
-          const currentTime = Date.now();
-          const lastScanned = lastScannedRef.current;
-
-          // Only process if it's a new code or enough time has passed
-          if (
-            !lastScanned ||
-            lastScanned.code !== decodedText ||
-            currentTime - lastScanned.timestamp > 3000
-          ) {
-            lastScannedRef.current = {
-              code: decodedText,
-              timestamp: currentTime,
-            };
+      codeReaderRef.current.decodeFromVideoDevice(
+        deviceId,
+        videoRef.current,
+        async (result: Result | null) => {
+          if (result) {
+            const scannedCode = result.getText();
+            const currentTime = Date.now();
 
             if (
-              decodedText.includes(
-                process.env.NEXT_PUBLIC_BASE_URL ||
-                  "https://entraco-portal.netlify.app"
-              )
+              !lastScannedRef.current ||
+              lastScannedRef.current.code !== scannedCode ||
+              currentTime - lastScannedRef.current.timestamp > 3000
             ) {
-              setScanResult(decodedText);
-              playSuccessSound();
-              toast.success("QR Code scanned successfully!");
-              await logToServer(`QR Code scanned: ${decodedText}`);
-              await stopScanner();
-              startTransition(() => {
-                router.push(decodedText);
-              });
-            } else {
-              playFailureSound();
-              toast.error("Invalid QR code");
-              await stopScanner();
+              lastScannedRef.current = {
+                code: scannedCode,
+                timestamp: currentTime,
+              };
+
+              if (
+                scannedCode.includes(
+                  process.env.NEXT_PUBLIC_BASE_URL ||
+                    "https://entraco-portal.netlify.app"
+                )
+              ) {
+                setScanResult(scannedCode);
+                playSuccessSound();
+                toast.success("QR Code scanned successfully!");
+                await logToServer(`QR Code scanned: ${scannedCode}`);
+                await stopScanner();
+                startTransition(() => {
+                  router.push(scannedCode);
+                });
+              } else {
+                playFailureSound();
+                toast.error("Invalid QR code");
+                await stopScanner();
+              }
             }
           }
-        },
-        async (errorMessage) => {
-          console.warn(`QR Code scan error: ${errorMessage}`);
-          await logToServer(`QR Code scan error: ${errorMessage}`);
         }
       );
     } catch (err) {
@@ -164,13 +152,13 @@ export default function ScanPage() {
   const handleRescan = () => {
     setScanResult(null);
     lastScannedRef.current = null;
-    startScanner();
+    if (selectedCamera !== "off") {
+      startScanner(selectedCamera);
+    }
   };
 
-  const handleCameraChange = async (cameraId: string) => {
+  const handleCameraChange = (cameraId: string) => {
     setSelectedCamera(cameraId);
-    await stopScanner();
-    await startScanner();
   };
 
   if (isPending) {
@@ -209,16 +197,29 @@ export default function ScanPage() {
                 style={{ width: 300 }}
                 value={selectedCamera}
                 onChange={handleCameraChange}
-                options={cameras.map((camera) => ({
-                  value: camera.id,
-                  label: camera.label,
-                }))}
+                options={[
+                  { value: "off", label: "Camera Off" },
+                  ...cameras.map((camera) => ({
+                    value: camera.deviceId,
+                    label: camera.label || `Camera ${cameras.indexOf(camera) + 1}`,
+                  })),
+                ]}
                 placeholder="Select a camera"
               />
-              <div
-                id="qr-reader"
-                style={{ width: "100%", maxWidth: 600, margin: "0 auto" }}
-              />
+              {selectedCamera !== "off" && (
+                <video
+                  ref={videoRef}
+                  style={{
+                    width: "100%",
+                    maxWidth: 600,
+                    margin: "0 auto",
+                    borderRadius: 8,
+                  }}
+                  playsInline
+                  muted
+                  autoPlay
+                />
+              )}
             </Flex>
           </Card>
         </Col>
@@ -249,6 +250,7 @@ export default function ScanPage() {
                 size="large"
                 icon={<ScanOutlined />}
                 onClick={handleRescan}
+                disabled={selectedCamera === "off"}
                 style={{ marginTop: 16 }}>
                 {scanResult ? "Scan Again" : "Start Scanning"}
               </Button>
