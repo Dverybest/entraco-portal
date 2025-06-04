@@ -57,7 +57,7 @@ export default function ScannedVehiclePage() {
 
 
   return (
-    <div style={{ background: "#f8fafc", minHeight: "100vh", padding: 24 }}>
+    <div style={{ background: "#f8fafc", minHeight: "100vh",  }}>
       <div
         style={{
           display: "flex",
@@ -79,7 +79,12 @@ export default function ScannedVehiclePage() {
           <Row justify="space-between" align="middle">
             <Col>
               <Row align="middle" gutter={8}>
-                <Col>
+                <Col 
+                  xs={24}
+                  sm={24}
+                  md="auto"
+
+                >
                   <Image
                     src="/entraco-logo.jpeg"
                     alt="ENTRACO Logo"
