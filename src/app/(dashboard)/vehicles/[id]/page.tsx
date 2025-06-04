@@ -482,7 +482,7 @@ export default function VehicleCertificatePage() {
       <QRCodeModal
         isOpen={isQRModalOpen}
         onClose={() => setIsQRModalOpen(false)}
-        vehicleUrl={`${window.location.origin}/vehicles/${vehicleId}`}
+        vehicleUrl={`${window.location.origin}/scan-vehicles/${vehicleId}`}
         title="Vehicle Details QR Code"
       />
     </div>

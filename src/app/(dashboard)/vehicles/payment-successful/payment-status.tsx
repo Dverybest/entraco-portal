@@ -47,7 +47,7 @@ export default function PaymentStatus() {
   };
 
   const vehicleUrl = verificationResponse?.data.vehicle._id
-    ? `${window.location.origin}/vehicles/${verificationResponse.data.vehicle._id}`
+    ? `${window.location.origin}/scan-vehicles/${verificationResponse.data.vehicle._id}`
     : undefined;
 
   if (!reference || success !== "true") {

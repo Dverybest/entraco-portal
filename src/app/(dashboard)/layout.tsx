@@ -14,13 +14,13 @@ import {
   Layout,
   Menu,
   Modal,
-  Spin,
   theme,
 } from "antd";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
-import { redirect, usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useMemo, useState } from "react";
+
 const { Header, Sider, Content } = Layout;
 
 const App: React.FC<
@@ -30,7 +30,7 @@ const App: React.FC<
 > = ({ children }) => {
   const router = useRouter();
   const pathName = usePathname();
-  const { status, data: session } = useSession();
+  const { data: session } = useSession();
   const [collapsed, setCollapsed] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -48,17 +48,7 @@ const App: React.FC<
     token: { colorBgContainer },
   } = theme.useToken();
 
-  if (status === "unauthenticated") {
-    redirect("/login");
-  }
 
-  if (status === "loading") {
-    return (
-      <center>
-        <Spin spinning />
-      </center>
-    );
-  }
 
   const handleLogout = async () => {
     setIsModalOpen(false);

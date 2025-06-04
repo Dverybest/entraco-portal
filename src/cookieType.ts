@@ -5,4 +5,6 @@ export enum CookieType {
   OwnerInformation = "OwnerInformation",
   ShopInformation = "ShopInformation",
   DriverInformation = "DriverInformation",
+  CurrentUrl = "CurrentUrl",
+  ExpiryMessage = "ExpiryMessage",
 }

@@ -1,0 +1,142 @@
+'use client';
+
+import { useEffect, useState, useRef } from 'react';
+import { Card, Typography, Button, message,  Row, Col, Flex, theme } from 'antd';
+import { Html5Qrcode } from 'html5-qrcode';
+import { ScanOutlined } from "@ant-design/icons";
+import React from "react";
+import { useRouter } from 'next/navigation';
+
+const { Title, Text } = Typography;
+
+export default function ScanPage() {
+  const { token: { colorPrimary } } = theme.useToken();
+  const [scanResult, setScanResult] = useState<string | null>(null);
+  const scannerRef = useRef<Html5Qrcode | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    startScanner();
+
+    return () => {
+      if (scannerRef.current) {
+        scannerRef.current.stop().catch(console.error);
+      }
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const startScanner = async () => {
+    try {
+      if (typeof window === 'undefined') return;
+
+      const html5QrCode = new Html5Qrcode('qr-reader');
+      scannerRef.current = html5QrCode;
+
+      const cameras = await Html5Qrcode.getCameras();
+      if (cameras && cameras.length) {
+        const cameraId = cameras[0].id;
+        await html5QrCode.start(
+          cameraId,
+          {
+            fps: 10,
+            qrbox: { width: 250, height: 250 },
+          },
+          (decodedText) => {
+            setScanResult(decodedText);
+            message.success('QR Code scanned successfully!');
+            html5QrCode.stop().catch(console.error);
+            
+            // Extract vehicle ID from the URL
+            const vehicleId = decodedText.split('/').pop();
+            if (vehicleId) {
+              router.push(`/vehicles/${vehicleId}`);
+            } else {
+              message.error('Invalid QR code format');
+            }
+          },
+          (errorMessage) => {
+            console.warn(`QR Code scan error: ${errorMessage}`);
+          }
+        );
+      } else {
+        message.error('No cameras found');
+      }
+    } catch (err) {
+      console.error('Error starting scanner:', err);
+      message.error('Failed to start camera');
+    }
+  };
+
+  const handleRescan = () => {
+    setScanResult(null);
+    startScanner();
+  };
+
+  return (
+    <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+      <Row gutter={[24, 24]}>
+        <Col xs={24}>
+          <Card
+            style={{
+              borderRadius: 12,
+              boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+            }}>
+            <Flex vertical align="center" gap={24}>
+              <Title level={2} style={{ margin: 0, textAlign: "center" }}>
+                Welcome to Scan Portal
+              </Title>
+              <Text type="secondary" style={{ textAlign: "center" }}>
+                Scan QR codes or barcodes to process transactions quickly and
+                efficiently
+              </Text>
+            </Flex>
+          </Card>
+        </Col>
+
+        <Col xs={24}>
+          <Card
+            style={{
+              borderRadius: 12,
+              boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+            }}>
+            <div id="qr-reader" style={{ width: '100%', maxWidth: 600, margin: '0 auto' }} />
+          </Card>
+        </Col>
+
+        <Col xs={24} md={12}>
+          <Card
+            hoverable
+            style={{
+              borderRadius: 12,
+              height: "100%",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+            }}>
+            <Flex vertical align="center" gap={16}>
+              <ScanOutlined
+                style={{
+                  fontSize: 48,
+                  color: colorPrimary,
+                }}
+              />
+              <Title level={4} style={{ margin: 0, textAlign: "center" }}>
+                Scan QR Code
+              </Title>
+              <Text type="secondary" style={{ textAlign: "center" }}>
+                Scan QR codes to view vehicle details
+              </Text>
+              <Button
+                type="primary"
+                size="large"
+                icon={<ScanOutlined />}
+                onClick={handleRescan}
+                style={{ marginTop: 16 }}>
+                {scanResult ? 'Scan Again' : 'Start Scanning'}
+              </Button>
+            </Flex>
+          </Card>
+        </Col>
+      </Row>
+    </div>
+  );
+}
