@@ -8,7 +8,6 @@ export const playFeedbackSound = (type: 'success' | 'failure' = 'success') => {
     oscillator.type = "sine";
   
     if (type === 'success') {
-      // Original beep sound - ascending tone
       oscillator.frequency.setValueAtTime(1800, audioContext.currentTime);
       oscillator.frequency.exponentialRampToValueAtTime(
         500,
@@ -24,7 +23,6 @@ export const playFeedbackSound = (type: 'success' | 'failure' = 'success') => {
       oscillator.start();
       oscillator.stop(audioContext.currentTime + 0.1);
     } else {
-      // Failure sound - descending buzzer-like tone
       oscillator.type = "sawtooth";
       oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
       oscillator.frequency.exponentialRampToValueAtTime(
@@ -46,6 +44,5 @@ export const playFeedbackSound = (type: 'success' | 'failure' = 'success') => {
     gainNode.connect(audioContext.destination);
   };
   
-  // Convenience functions for backward compatibility and clarity
   export const playSuccessSound = () => playFeedbackSound('success');
   export const playFailureSound = () => playFeedbackSound('failure');
