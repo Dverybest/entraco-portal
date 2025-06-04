@@ -1,4 +1,5 @@
-"use client";
+'use client';
+
 import {
   Card,
   Typography,
@@ -9,44 +10,20 @@ import {
   Spin,
   Alert,
   Button,
-  Space,
 } from "antd";
-import styles from "../../style.module.css";
 import { useParams, useRouter } from "next/navigation";
-
 import {
-  PrinterOutlined,
   ArrowLeftOutlined,
-  QrcodeOutlined,
 } from "@ant-design/icons";
-import React, { useRef, useState } from "react";
-import { useReactToPrint } from "react-to-print";
-import { QRCodeModal } from "../payment-successful/qr-code-modal";
+import React from "react";
 import { useGetSingleVehicleQuery } from "@/hooks/api/useGetSingleVehicleQuery";
 
 const { Title, Text } = Typography;
 
-export default function VehicleCertificatePage() {
+export default function ScannedVehiclePage() {
   const params = useParams();
   const vehicleId = params?.id as string;
   const router = useRouter();
-  const printRef = useRef<HTMLDivElement>(null);
-  const [isQRModalOpen, setIsQRModalOpen] = useState(false);
-
-  const handlePrint = useReactToPrint({
-    contentRef: printRef,
-    documentTitle: "Vehicle Registration Certificate",
-    pageStyle: `@media print {
-      @page {
-        size: A4 Landscape;
-        margin: 24px;
-      }
-    }`,
-  });
-
-  const handleQRCodeClick = () => {
-    setIsQRModalOpen(true);
-  };
 
   const { data, isLoading, error } = useGetSingleVehicleQuery(vehicleId);
 
@@ -57,7 +34,7 @@ export default function VehicleCertificatePage() {
     return (
       <Alert
         type="error"
-        message="Error loading certificate"
+        message="Error loading vehicle details"
         description={error instanceof Error ? error.message : "Unknown error"}
         style={{ maxWidth: 600, margin: "100px auto" }}
       />
@@ -68,7 +45,7 @@ export default function VehicleCertificatePage() {
     return (
       <Alert
         type="warning"
-        message="Certificate not found"
+        message="Vehicle not found"
         style={{ maxWidth: 600, margin: "100px auto" }}
       />
     );
@@ -77,10 +54,10 @@ export default function VehicleCertificatePage() {
   const driver = vehicle.driver || {};
   const route = vehicle.route || {};
 
+
+
   return (
-    <div
-      className={styles.certificateWrapper}
-      style={{ background: "#f8fafc", minHeight: "100vh", padding: 24 }}>
+    <div style={{ background: "#f8fafc", minHeight: "100vh", padding: 24 }}>
       <div
         style={{
           display: "flex",
@@ -91,20 +68,8 @@ export default function VehicleCertificatePage() {
         <Button icon={<ArrowLeftOutlined />} onClick={() => router.back()}>
           Back
         </Button>
-        <Space>
-          <Button icon={<QrcodeOutlined />} onClick={handleQRCodeClick}>
-            QR Code
-          </Button>
-          <Button
-            icon={<PrinterOutlined />}
-            type="primary"
-            onClick={handlePrint}>
-            Print
-          </Button>
-        </Space>
       </div>
-      <div ref={printRef}>
-        <Card
+      <Card
           style={{
             maxWidth: 800,
             margin: "0 auto",
@@ -478,13 +443,6 @@ export default function VehicleCertificatePage() {
             </div>
           </div>
         </Card>
-      </div>
-      <QRCodeModal
-        isOpen={isQRModalOpen}
-        onClose={() => setIsQRModalOpen(false)}
-        vehicleUrl={`${window.location.origin}/scan-vehicles/${vehicleId}`}
-        title="Vehicle Details QR Code"
-      />
     </div>
   );
-}
+} 

@@ -55,7 +55,7 @@ export default function Page() {
   const router = useRouter();
 
   const handleQRCodeClick = (vehicleId: string) => {
-    const url = `${window.location.origin}/vehicles/${vehicleId}`;
+    const url = `${window.location.origin}/scan-vehicles/${vehicleId}`;
     setSelectedVehicleUrl(url);
     setIsQRModalOpen(true);
   };
