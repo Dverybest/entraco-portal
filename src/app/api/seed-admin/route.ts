@@ -19,7 +19,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Validate role
     if (role !== "admin" && role !== "super_admin") {
       return NextResponse.json(
         { message: "Role must be either 'admin' or 'super_admin'" },
@@ -27,7 +26,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Check if admin already exists
     const existingAdmin = await Admin.findOne({ email });
 
     if (existingAdmin) {
@@ -37,7 +35,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Create new admin
     const user = await Admin.create({
       firstName,
       lastName,

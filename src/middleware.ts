@@ -8,7 +8,6 @@ interface Token extends JWT {
   role: UserRole;
 }
 
-// Route configurations
 const ALLOWED_ROUTES = {
   LOGIN: "/login",
   HOME: "/",
@@ -28,17 +27,12 @@ const ROLE_PERMISSIONS = {
 
 type UserRole = keyof typeof ROLE_PERMISSIONS;
 
-/**
- * Checks if a token is expired
- */
 function isTokenExpired(token: Token): boolean {
   if (!token?.exp) return true;
   return Date.now() >= (token.exp as number) * 1000;
 }
 
-/**
- * Checks if user has permission to access a route
- */
+
 function hasRoutePermission(role: UserRole, pathname: string): boolean {
   const permissions = ROLE_PERMISSIONS[role];
   
@@ -56,9 +50,7 @@ function hasRoutePermission(role: UserRole, pathname: string): boolean {
   });
 }
 
-/**
- * Creates redirect response with appropriate cookies
- */
+
 function createRedirectResponse(
   targetUrl: string, 
   currentUrl: string, 
