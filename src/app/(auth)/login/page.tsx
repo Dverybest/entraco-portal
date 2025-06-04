@@ -18,7 +18,6 @@ export default function LoginPage() {
   const router = useRouter();
   const styles = useStyles();
   const [isLoading, setIsLoading] = useState(false);
-  
 
   const onFinish = async (values: ILoginForm) => {
     const previousUrl = getCookieValue(CookieType.CurrentUrl) as string;
@@ -29,9 +28,6 @@ export default function LoginPage() {
       password: values.password,
       redirect: false,
     });
-
-    console.log(res, "RESPONSE");
-    
 
     if (res?.ok) {
       // Get the token to access role
