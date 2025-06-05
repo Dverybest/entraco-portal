@@ -1,18 +1,9 @@
 "use client";
-import {
-  LoginOutlined,
-
-} from "@ant-design/icons";
-import {
-  Avatar,
-  Dropdown,
-  Flex,
-  Layout,
-  Modal,
-  theme,
-} from "antd";
+import { LoginOutlined } from "@ant-design/icons";
+import { Avatar, Dropdown, Flex, Layout, Modal, theme } from "antd";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 const { Header, Content } = Layout;
@@ -23,6 +14,7 @@ const ScanLayout: React.FC<
   }>
 > = ({ children }) => {
   const { data: session } = useSession();
+  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const {
@@ -32,9 +24,10 @@ const ScanLayout: React.FC<
   const handleLogout = async () => {
     setIsModalOpen(false);
     await signOut({
-      redirect: true,
-      callbackUrl: "/login",
+      redirect: false,
     });
+
+    router.replace("/login");
   };
 
   return (
@@ -54,7 +47,9 @@ const ScanLayout: React.FC<
         }}>
         <Flex align="center" gap={16}>
           <Image src={"/entraco-logo.jpeg"} alt="" width={40} height={40} />
-          <span style={{ fontSize: "1.2rem", fontWeight: "bold" }}>Scan Portal</span>
+          <span style={{ fontSize: "1.2rem", fontWeight: "bold" }}>
+            Scan Portal
+          </span>
         </Flex>
         <Dropdown
           menu={{
@@ -106,4 +101,4 @@ const ScanLayout: React.FC<
   );
 };
 
-export default ScanLayout; 
+export default ScanLayout;
