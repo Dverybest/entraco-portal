@@ -48,14 +48,13 @@ const App: React.FC<
     token: { colorBgContainer },
   } = theme.useToken();
 
-
-
   const handleLogout = async () => {
     setIsModalOpen(false);
     await signOut({
-      redirect: true,
-      callbackUrl: "/login",
+      redirect: false,
     });
+
+    router.replace("/login");
   };
 
   return (
